@@ -2,7 +2,7 @@
 
 # Make sure dartfmt is run on everything
 echo "Checking dartfmt..."
-needs_dartfmt="$(dartfmt -n lib test tools)"
+needs_dartfmt="$(dartfmt -n lib test dev)"
 if [[ -n "$needs_dartfmt" ]]; then
   echo "FAILED"
   echo "$needs_dartfmt"
@@ -12,7 +12,7 @@ echo "PASSED"
 
 # Make sure we pass the analyzer
 echo "Checking dartanalyzer..."
-fails_analyzer="$(find lib test tools -name "*.dart" | xargs dartanalyzer --options .analysis_options)"
+fails_analyzer="$(find lib test dev -name "*.dart" | xargs dartanalyzer --options .analysis_options)"
 if [[ "$fails_analyzer" == *"[error]"* ]]; then
   echo "FAILED"
   echo "$fails_analyzer"

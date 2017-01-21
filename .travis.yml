@@ -6,7 +6,7 @@ dart:
 install:
   - gem install coveralls-lcov
 script:
-  - ./tools/travis.sh
+  - ./dev/travis.sh
 after_success:
   - (coveralls-lcov coverage/lcov.info)
 cache:
