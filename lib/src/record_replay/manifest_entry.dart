@@ -5,18 +5,49 @@
 import 'dart:convert';
 import 'dart:io' show ProcessStartMode, SYSTEM_ENCODING;
 
+import 'manifest.dart';
 import 'replay_process_manager.dart';
+
+/// Throws a [FormatException] if [data] does not contain [key].
+void _checkRequiredField(Map<String, dynamic> data, String key) {
+  if (!data.containsKey(key))
+    throw new FormatException('Required field missing: $key');
+}
+
+/// Gets a `ProcessStartMode` value by its string name.
+ProcessStartMode _getProcessStartMode(String value) {
+  if (value != null) {
+    for (ProcessStartMode mode in ProcessStartMode.values) {
+      if (mode.toString() == value) {
+        return mode;
+      }
+    }
+    throw new FormatException('Invalid value for mode: $value');
+  }
+  return null;
+}
+
+/// Gets an `Encoding` instance by the encoding name.
+Encoding _getEncoding(String encoding) {
+  if (encoding == 'system') {
+    return SYSTEM_ENCODING;
+  } else if (encoding != null) {
+    return Encoding.getByName(encoding);
+  }
+  return null;
+}
 
 /// An entry in the process invocation manifest.
 ///
-/// Each entry represents a single recorded process invocation.
+/// Each entry in the [Manifest] represents a single recorded process
+/// invocation.
 class ManifestEntry {
   /// The process id.
   final int pid;
 
   /// The base file name for this entry. `stdout` and `stderr` files for this
-  /// process will be serialized as `$basename.stdout` and `$basename.stderr`,
-  /// respectively.
+  /// process will be serialized in the recording directory as
+  /// `$basename.stdout` and `$basename.stderr`, respectively.
   final String basename;
 
   /// The name of the executable that spawned the process.
@@ -40,16 +71,16 @@ class ManifestEntry {
   /// The mode with which the process was spawned.
   final ProcessStartMode mode;
 
-  /// The encoding used for decoding `stdout` of the process.
+  /// The encoding used for the `stdout` of the process.
   final Encoding stdoutEncoding;
 
-  /// The encoding used for decoding `stderr` of the process.
+  /// The encoding used for the `stderr` of the process.
   final Encoding stderrEncoding;
 
   /// The exit code of the process.
   int exitCode;
 
-  /// Constructs a new manifest entry with the given properties.
+  /// Creates a new manifest entry with the given properties.
   ManifestEntry({
     this.pid,
     this.basename,
@@ -65,7 +96,10 @@ class ManifestEntry {
     this.exitCode,
   });
 
-  /// Creates a new manifest entry, populated with the specified JSON [data].
+  /// Creates a new manifest entry populated with the specified JSON [data].
+  ///
+  /// If any required fields are missing from the JSON data, this will throw
+  /// a [FormatException].
   factory ManifestEntry.fromJson(Map<String, dynamic> data) {
     _checkRequiredField(data, 'pid');
     _checkRequiredField(data, 'basename');
@@ -90,28 +124,6 @@ class ManifestEntry {
     return entry;
   }
 
-  static void _checkRequiredField(Map<String, dynamic> data, String key) {
-    if (!data.containsKey(key))
-      throw new FormatException('Required field missing: $key');
-  }
-
-  static ProcessStartMode _getProcessStartMode(String mode) {
-    if (mode != null) {
-      for (ProcessStartMode iter in ProcessStartMode.values) {
-        if (iter.toString() == mode) return iter;
-      }
-      throw new FormatException('Invalid value for mode: $mode');
-    }
-    return null;
-  }
-
-  static Encoding _getEncoding(String encoding) {
-    if (encoding == 'system')
-      return SYSTEM_ENCODING;
-    else if (encoding != null) return Encoding.getByName(encoding);
-    return null;
-  }
-
   /// Indicates that the process is a daemon.
   bool get daemon => _daemon;
   bool _daemon = false;
@@ -122,11 +134,11 @@ class ManifestEntry {
   bool _notResponding = false;
   set notResponding(bool value) => _notResponding = value ?? false;
 
-  /// Whether this entry has been invoked by [ReplayProcessManager].
+  /// Whether this entry has been "invoked" by [ReplayProcessManager].
   bool get invoked => _invoked;
   bool _invoked = false;
 
-  /// Marks this entry as having been invoked by [ReplayProcessManager].
+  /// Marks this entry as having been "invoked" by [ReplayProcessManager].
   void setInvoked() {
     _invoked = true;
   }

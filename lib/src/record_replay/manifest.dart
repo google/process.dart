@@ -24,9 +24,11 @@ bool _isHit(
   dynamic testValue, [
   bool isEqual(dynamic value1, dynamic value2),
 ]) {
-  if (testValue == null)
+  if (testValue == null) {
     return true;
-  else if (isEqual != null) return isEqual(entryValue, testValue);
+  } else if (isEqual != null) {
+    return isEqual(entryValue, testValue);
+  }
   return entryValue == testValue;
 }
 
@@ -38,7 +40,7 @@ class Manifest {
   /// Creates a new manifest.
   Manifest();
 
-  /// Creates a new manifest, populated with the specified [json] data.
+  /// Creates a new manifest populated with the specified [json] data.
   ///
   /// If [json] does not represent a valid JSON string (matching the format of
   /// [toJson]), a [FormatException] will be thrown.

@@ -28,9 +28,10 @@ import 'replay_process_manager.dart';
 /// A `RecordingProcessManager` decorates another `ProcessManager` instance by
 /// recording all process invocation activity (including the stdout and stderr
 /// of the associated processes) before delegating to the underlying manager.
-/// It is the basis of "record / replay" tests, where you record the process
+///
+/// This class enables "record / replay" tests, where you record the process
 /// invocation activity during a real program run, serialize the activity to
-/// disk, then fake all invication activity during tests by replaying the
+/// disk, then fake all invocation activity during tests by replaying the
 /// serialized recording.
 ///
 /// See also:
@@ -64,9 +65,13 @@ class RecordingProcessManager implements ProcessManager {
   /// a [StateError] will be thrown.
   ///
   /// [destination] should be treated as opaque. Its contents are intended to
-  /// be consumed by [ReplayProcessManager] and are subject to change between
-  /// versions of which package.
-  RecordingProcessManager(this.delegate, this.destination);
+  /// be consumed only by [ReplayProcessManager] and are subject to change
+  /// between versions of `package:process`.
+  RecordingProcessManager(this.delegate, this.destination) {
+    if (!destination.existsSync() || destination.listSync().isNotEmpty) {
+      throw new StateError('Cannot record to ${destination.path}');
+    }
+  }
 
   /// The file system in which this manager will create recording files.
   FileSystem get fs => destination.fileSystem;

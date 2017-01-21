@@ -23,52 +23,23 @@ import 'manifest.dart';
 import 'manifest_entry.dart';
 import 'recording_process_manager.dart';
 
-/// Mocks out all process invocations by replaying a previously-recorded series
+/// Fakes all process invocations by replaying a previously-recorded series
 /// of invocations.
 ///
-/// Fopo, throwing an
-/// exception if the requested invocations substantively differ in any way
-/// from those in the recording.
-///
-/// Recordings are expected to be of the form produced by
-/// [RecordingProcessManager]. Namely, this includes:
-///
-/// - a [_kManifestName](manifest file) encoded as UTF-8 JSON that lists all
-///   invocations in order, along with the following metadata for each
-///   invocation:
-///   - `pid` (required): The process id integer.
-///   - `basename` (required): A string specifying the base filename from which
-///     the incovation's `stdout` and `stderr` files can be located.
-///   - `executable` (required): A string specifying the path to the executable
-///     command that kicked off the process.
-///   - `arguments` (required): A list of strings that were passed as arguments
-///     to the executable.
-///   - `workingDirectory` (required): The current working directory from which
-///     the process was spawned.
-///   - `environment` (required): A map from string environment variable keys
-///     to their corresponding string values.
-///   - `mode` (optional): A string specifying the [ProcessStartMode].
-///   - `stdoutEncoding` (optional): The name of the encoding scheme that was
-///     used in the `stdout` file. If unspecified, then the file was written
-///     as binary data.
-///   - `stderrEncoding` (optional): The name of the encoding scheme that was
-///     used in the `stderr` file. If unspecified, then the file was written
-///     as binary data.
-///   - `exitCode` (required): The exit code of the process, or null if the
-///     process was not responding.
-///   - `daemon` (optional): A boolean indicating that the process is to stay
-///     resident during the entire lifetime of the master Flutter tools process.
-/// - a `stdout` file for each process invocation. The location of this file
-///   can be derived from the `basename` manifest property like so:
-///   `'$basename.stdout'`.
-/// - a `stderr` file for each process invocation. The location of this file
-///   can be derived from the `basename` manifest property like so:
-///   `'$basename.stderr'`.
+/// Recordings exist as opaque directories that are produced by
+/// [RecordingProcessManager].
 class ReplayProcessManager implements ProcessManager {
   final Manifest _manifest;
-  final Directory _dir;
 
-  ReplayProcessManager._(this._manifest, this._dir);
+  /// The location of the serialized recording that's driving this manager.
+  final Directory location;
+
+  /// If non-null, processes spawned by this manager will delay their
+  /// `stdout` and `stderr` stream production by the this amount. See
+  /// description of the associated parameter in [create].
+  final Duration streamDelay;
+
+  ReplayProcessManager._(this._manifest, this.location, this.streamDelay);
 
   /// Creates a new `ReplayProcessManager` capable of replaying a recording that
   /// was serialized to the specified [location] by [RecordingProcessManager].
@@ -76,7 +47,22 @@ class ReplayProcessManager implements ProcessManager {
   /// If [location] does not exist, or if it does not represent a valid
   /// recording (as determined by [RecordingProcessManager]), an [ArgumentError]
   /// will be thrown.
-  static Future<ReplayProcessManager> create(Directory location) async {
+  ///
+  /// If [streamDelay] is specified, processes spawned by this manager will
+  /// delay their `stdout` and `stderr` stream production by the specified
+  /// amount. This is useful in cases where the real process invocation had
+  /// a necessary delay in stream production, and you need to mirror that
+  /// behavior. e.g. you spawn a `tail` process to tail a log file, then in a
+  /// follow-on event loop, you invoke a `startServer` process, which starts
+  /// producing log output. In this case, you may need to delay the `tail`
+  /// output to prevent its stream from flushing all its content before you
+  /// start listening.
+  static Future<ReplayProcessManager> create(
+    Directory location, {
+    Duration streamDelay: Duration.ZERO,
+  }) async {
+    assert(streamDelay != null);
+
     if (!location.existsSync()) {
       throw new ArgumentError.value(location.path, 'location', "Doesn't exist");
     }
@@ -93,7 +79,7 @@ class ReplayProcessManager implements ProcessManager {
       // We don't validate the existence of all stdout and stderr files
       // referenced in the manifest.
       Manifest manifest = new Manifest.fromJson(content);
-      return new ReplayProcessManager._(manifest, location);
+      return new ReplayProcessManager._(manifest, location, streamDelay);
     } on FormatException catch (e) {
       throw new ArgumentError('$kManifestName is not a valid JSON file: $e');
     }
@@ -111,7 +97,7 @@ class ReplayProcessManager implements ProcessManager {
   }) async {
     ManifestEntry entry = _popEntry(executable, arguments, mode: mode);
     _ReplayResult result =
-        await _ReplayResult.create(executable, arguments, _dir, entry);
+        await _ReplayResult.create(this, executable, arguments, entry);
     return result.asProcess(entry.daemon);
   }
 
@@ -128,7 +114,7 @@ class ReplayProcessManager implements ProcessManager {
   }) async {
     ManifestEntry entry = _popEntry(executable, arguments,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
-    return await _ReplayResult.create(executable, arguments, _dir, entry);
+    return await _ReplayResult.create(this, executable, arguments, entry);
   }
 
   @override
@@ -144,7 +130,7 @@ class ReplayProcessManager implements ProcessManager {
   }) {
     ManifestEntry entry = _popEntry(executable, arguments,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
-    return _ReplayResult.createSync(executable, arguments, _dir, entry);
+    return _ReplayResult.createSync(this, executable, arguments, entry);
   }
 
   /// Finds and returns the next entry in the process manifest that matches
@@ -185,6 +171,8 @@ class ReplayProcessManager implements ProcessManager {
 /// A [ProcessResult] implementation that derives its data from a recording
 /// fragment.
 class _ReplayResult implements io.ProcessResult {
+  final ReplayProcessManager manager;
+
   @override
   final int pid;
 
@@ -197,18 +185,19 @@ class _ReplayResult implements io.ProcessResult {
   @override
   final dynamic stderr;
 
-  _ReplayResult._({this.pid, this.exitCode, this.stdout, this.stderr});
+  _ReplayResult._({this.manager, this.pid, this.exitCode, this.stdout, this.stderr,});
 
   static Future<_ReplayResult> create(
+    ReplayProcessManager manager,
     String executable,
     List<String> arguments,
-    Directory dir,
     ManifestEntry entry,
   ) async {
-    FileSystem fs = dir.fileSystem;
-    String basePath = path.join(dir.path, entry.basename);
+    FileSystem fs = manager.location.fileSystem;
+    String basePath = path.join(manager.location.path, entry.basename);
     try {
       return new _ReplayResult._(
+        manager: manager,
         pid: entry.pid,
         exitCode: entry.exitCode,
         stdout: await _getData(fs, '$basePath.stdout', entry.stdoutEncoding),
@@ -228,15 +217,16 @@ class _ReplayResult implements io.ProcessResult {
   }
 
   static _ReplayResult createSync(
+    ReplayProcessManager manager,
     String executable,
     List<String> arguments,
-    Directory dir,
     ManifestEntry entry,
   ) {
-    FileSystem fs = dir.fileSystem;
-    String basePath = path.join(dir.path, entry.basename);
+    FileSystem fs = manager.location.fileSystem;
+    String basePath = path.join(manager.location.path, entry.basename);
     try {
       return new _ReplayResult._(
+        manager: manager,
         pid: entry.pid,
         exitCode: entry.exitCode,
         stdout: _getDataSync(fs, '$basePath.stdout', entry.stdoutEncoding),
@@ -281,23 +271,9 @@ class _ReplayProcess implements io.Process {
         _stderrController = new StreamController<List<int>>(),
         _exitCode = result.exitCode,
         _exitCodeCompleter = new Completer<int>() {
-    // Don't flush our stdio streams until we reach the outer event loop. This
-    // is necessary because some of our process invocations transform the stdio
-    // streams into broadcast streams (e.g. DeviceLogReader implementations),
-    // and delaying our stdio stream production until we reach the outer event
-    // loop allows all code running in the microtask loop to register as
-    // listeners on these streams before we flush them.
-    //
-    // TODO(tvolkert): Once https://github.com/flutter/flutter/issues/7166 is
-    //                 resolved, running on the outer event loop should be
-    //                 sufficient (as described above), and we should switch to
-    //                 Duration.ZERO. In the meantime, native file I/O
-    //                 operations are causing a Duration.ZERO callback here to
-    //                 run before our ProtocolDiscovery instantiation, and thus,
-    //                 we flush our stdio streams before our protocol discovery
-    //                 is listening on them (causing us to timeout waiting for
-    //                 the observatory port discovery).
-    new Timer(const Duration(milliseconds: 50), () {
+    // Don't flush our stdio streams until we at least reach the outer event
+    // loop. i.e. even if `streamDelay` is zero, we still want to use the timer.
+    new Timer(result.manager.streamDelay, () {
       _stdoutController.add(_stdout);
       _stderrController.add(_stderr);
       if (!daemon) kill();
