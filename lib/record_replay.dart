@@ -2,5 +2,5 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-export 'src/interface/local_process_manager.dart';
-export 'src/interface/process_manager.dart';
+export 'src/record_replay/recording_process_manager.dart';
+export 'src/record_replay/replay_process_manager.dart';

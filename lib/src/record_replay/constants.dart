@@ -2,10 +2,5 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:process/process.dart';
-import 'package:test/test.dart';
-
-void main() {
-  group('LocalProcessManager', () {
-  });
-}
+/// The name of the invocation manifest file.
+const String kManifestName = 'MANIFEST.txt';

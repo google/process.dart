@@ -6,8 +6,9 @@ description: A pluggable, mockable process invocation abstraction for Dart.
 homepage: https://github.com/tvolkert/process
 
 dependencies:
-  meta: ^1.0.4
   file: ^1.0.1
+  intl: '>=0.14.0 <0.15.0'
+  path: ^1.4.0
 
 dev_dependencies:
   test: ^0.12.10
