@@ -185,7 +185,13 @@ class _ReplayResult implements io.ProcessResult {
   @override
   final dynamic stderr;
 
-  _ReplayResult._({this.manager, this.pid, this.exitCode, this.stdout, this.stderr,});
+  _ReplayResult._({
+    this.manager,
+    this.pid,
+    this.exitCode,
+    this.stdout,
+    this.stderr,
+  });
 
   static Future<_ReplayResult> create(
     ReplayProcessManager manager,

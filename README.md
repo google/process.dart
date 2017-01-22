@@ -1,5 +1,8 @@
 # Process
 
+[![Build Status -](https://travis-ci.org/tvolkert/process.svg?branch=master)](https://travis-ci.org/tvolkert/process)
+[![Coverage Status -](https://coveralls.io/repos/github/tvolkert/process/badge.svg?branch=master)](https://coveralls.io/github/tvolkert/process?branch=master)
+
 A generic process invocation abstraction for Dart.
 
 Like `dart:io`, `package:process` supplies a rich, Dart-idiomatic API for
