@@ -19,12 +19,17 @@ import 'dart:io'
 /// implementation to be mocked out or decorated for testing and debugging
 /// purposes.
 abstract class ProcessManager {
-  /// Starts a process running the [executable] with the specified
-  /// [arguments]. Returns a [:Future<Process>:] that completes with a
-  /// Process instance when the process has been successfully
-  /// started. That [Process] object can be used to interact with the
-  /// process. If the process cannot be started the returned [Future]
-  /// completes with an exception.
+  /// Starts a process by running the specified [command].
+  ///
+  /// The first element in [command] will be treated as the executable to run,
+  /// with subsequent elements being passed as arguments to the executable. It
+  /// is left to implementations to decide what element types they support in
+  /// the [command] list.
+  ///
+  /// Returns a `Future<Process>` that completes with a Process instance when
+  /// the process has been successfully started. That [Process] object can be
+  /// used to interact with the process. If the process cannot be started, the
+  /// returned [Future] completes with an exception.
   ///
   /// Use [workingDirectory] to set the working directory for the process. Note
   /// that the change of directory occurs before executing the process on some
@@ -32,7 +37,7 @@ abstract class ProcessManager {
   /// executable and the arguments.
   ///
   /// Use [environment] to set the environment variables for the process. If not
-  /// set the environment of the parent process is inherited. Currently, only
+  /// set, the environment of the parent process is inherited. Currently, only
   /// US-ASCII environment variables are supported and errors are likely to occur
   /// if an environment variable with code-points outside the US-ASCII range is
   /// passed in.
@@ -42,11 +47,11 @@ abstract class ProcessManager {
   /// precedence. Default is `true`.
   ///
   /// If [runInShell] is `true`, the process will be spawned through a system
-  /// shell. On Linux and OS X, [:/bin/sh:] is used, while
-  /// [:%WINDIR%\system32\cmd.exe:] is used on Windows.
+  /// shell. On Linux and OS X, `/bin/sh` is used, while
+  /// `%WINDIR%\system32\cmd.exe` is used on Windows.
   ///
   /// Users must read all data coming on the `stdout` and `stderr`
-  /// streams of processes started with [:start:]. If the user
+  /// streams of processes started with [start]. If the user
   /// does not read all data on the streams the underlying system
   /// resources will not be released since there is still pending data.
   ///
@@ -79,8 +84,7 @@ abstract class ProcessManager {
   ///
   /// The default value for `mode` is `ProcessStartMode.NORMAL`.
   Future<Process> start(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -88,8 +92,12 @@ abstract class ProcessManager {
     ProcessStartMode mode: ProcessStartMode.NORMAL,
   });
 
-  /// Starts a process and runs it non-interactively to completion. The
-  /// process run is [executable] with the specified [arguments].
+  /// Starts a process and runs it non-interactively to completion.
+  ///
+  /// The first element in [command] will be treated as the executable to run,
+  /// with subsequent elements being passed as arguments to the executable. It
+  /// is left to implementations to decide what element types they support in
+  /// the [command] list.
   ///
   /// Use [workingDirectory] to set the working directory for the process. Note
   /// that the change of directory occurs before executing the process on some
@@ -129,8 +137,7 @@ abstract class ProcessManager {
   ///       stderr.write(result.stderr);
   ///     });
   Future<ProcessResult> run(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -147,8 +154,7 @@ abstract class ProcessManager {
   /// Returns a `ProcessResult` with the result of running the process,
   /// i.e., exit code, standard out and standard in.
   ProcessResult runSync(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,

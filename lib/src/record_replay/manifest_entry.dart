@@ -50,11 +50,9 @@ class ManifestEntry {
   /// `$basename.stdout` and `$basename.stderr`, respectively.
   final String basename;
 
-  /// The name of the executable that spawned the process.
-  final String executable;
-
-  /// The list of arguments to [executable].
-  final List<String> arguments;
+  /// The command that was run. The first element is the executable, and the
+  /// remaining elements are the arguments to the executable.
+  final List<String> command;
 
   /// The process' working directory when it was spawned.
   final String workingDirectory;
@@ -84,8 +82,7 @@ class ManifestEntry {
   ManifestEntry({
     this.pid,
     this.basename,
-    this.executable,
-    this.arguments,
+    this.command,
     this.workingDirectory,
     this.environment,
     this.includeParentEnvironment,
@@ -103,13 +100,11 @@ class ManifestEntry {
   factory ManifestEntry.fromJson(Map<String, dynamic> data) {
     _checkRequiredField(data, 'pid');
     _checkRequiredField(data, 'basename');
-    _checkRequiredField(data, 'executable');
-    _checkRequiredField(data, 'arguments');
+    _checkRequiredField(data, 'command');
     ManifestEntry entry = new ManifestEntry(
       pid: data['pid'],
       basename: data['basename'],
-      executable: data['executable'],
-      arguments: data['arguments'],
+      command: data['command'],
       workingDirectory: data['workingDirectory'],
       environment: data['environment'],
       includeParentEnvironment: data['includeParentEnvironment'],
@@ -123,6 +118,12 @@ class ManifestEntry {
     entry.notResponding = data['notResponding'];
     return entry;
   }
+
+  /// The executable that was invoked.
+  String get executable => command.first;
+
+  /// The arguments that were passed to [executable].
+  List<String> get arguments => command.skip(1).toList();
 
   /// Indicates that the process is a daemon.
   bool get daemon => _daemon;
@@ -147,8 +148,7 @@ class ManifestEntry {
   Map<String, dynamic> toJson() => new _JsonBuilder()
       .add('pid', pid)
       .add('basename', basename)
-      .add('executable', executable)
-      .add('arguments', arguments)
+      .add('command', command)
       .add('workingDirectory', workingDirectory)
       .add('environment', environment)
       .add('includeParentEnvironment', includeParentEnvironment)

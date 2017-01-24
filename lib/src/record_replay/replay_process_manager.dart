@@ -18,6 +18,7 @@ import 'package:file/file.dart';
 import 'package:path/path.dart' as path;
 
 import '../interface/process_manager.dart';
+import 'common.dart';
 import 'constants.dart';
 import 'manifest.dart';
 import 'manifest_entry.dart';
@@ -87,24 +88,21 @@ class ReplayProcessManager implements ProcessManager {
 
   @override
   Future<io.Process> start(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
     io.ProcessStartMode mode: io.ProcessStartMode.NORMAL,
   }) async {
-    ManifestEntry entry = _popEntry(executable, arguments, mode: mode);
-    _ReplayResult result =
-        await _ReplayResult.create(this, executable, arguments, entry);
+    ManifestEntry entry = _popEntry(command, mode: mode);
+    _ReplayResult result = await _ReplayResult.create(this, entry);
     return result.asProcess(entry.daemon);
   }
 
   @override
   Future<io.ProcessResult> run(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -112,15 +110,14 @@ class ReplayProcessManager implements ProcessManager {
     Encoding stdoutEncoding: io.SYSTEM_ENCODING,
     Encoding stderrEncoding: io.SYSTEM_ENCODING,
   }) async {
-    ManifestEntry entry = _popEntry(executable, arguments,
+    ManifestEntry entry = _popEntry(command,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
-    return await _ReplayResult.create(this, executable, arguments, entry);
+    return await _ReplayResult.create(this, entry);
   }
 
   @override
   io.ProcessResult runSync(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -128,32 +125,32 @@ class ReplayProcessManager implements ProcessManager {
     Encoding stdoutEncoding: io.SYSTEM_ENCODING,
     Encoding stderrEncoding: io.SYSTEM_ENCODING,
   }) {
-    ManifestEntry entry = _popEntry(executable, arguments,
+    ManifestEntry entry = _popEntry(command,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
-    return _ReplayResult.createSync(this, executable, arguments, entry);
+    return _ReplayResult.createSync(this, entry);
   }
 
   /// Finds and returns the next entry in the process manifest that matches
   /// the specified process arguments. Once found, it marks the manifest entry
   /// as having been invoked and thus not eligible for invocation again.
   ManifestEntry _popEntry(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     io.ProcessStartMode mode,
     Encoding stdoutEncoding,
     Encoding stderrEncoding,
   }) {
+    List<String> sanitizedCommand = sanitize(command);
     ManifestEntry entry = _manifest.findPendingEntry(
-      executable: executable,
-      arguments: arguments,
+      command: sanitizedCommand,
       mode: mode,
       stdoutEncoding: stdoutEncoding,
       stderrEncoding: stderrEncoding,
     );
 
-    if (entry == null)
-      throw new io.ProcessException(
-          executable, arguments, 'No matching invocation found');
+    if (entry == null) {
+      throw new io.ProcessException(sanitizedCommand.first,
+          sanitizedCommand.skip(1).toList(), 'No matching invocation found');
+    }
 
     entry.setInvoked();
     return entry;
@@ -195,8 +192,6 @@ class _ReplayResult implements io.ProcessResult {
 
   static Future<_ReplayResult> create(
     ReplayProcessManager manager,
-    String executable,
-    List<String> arguments,
     ManifestEntry entry,
   ) async {
     FileSystem fs = manager.location.fileSystem;
@@ -210,7 +205,8 @@ class _ReplayResult implements io.ProcessResult {
         stderr: await _getData(fs, '$basePath.stderr', entry.stderrEncoding),
       );
     } catch (e) {
-      throw new io.ProcessException(executable, arguments, e.toString());
+      throw new io.ProcessException(
+          entry.executable, entry.arguments, e.toString());
     }
   }
 
@@ -224,8 +220,6 @@ class _ReplayResult implements io.ProcessResult {
 
   static _ReplayResult createSync(
     ReplayProcessManager manager,
-    String executable,
-    List<String> arguments,
     ManifestEntry entry,
   ) {
     FileSystem fs = manager.location.fileSystem;
@@ -239,7 +233,8 @@ class _ReplayResult implements io.ProcessResult {
         stderr: _getDataSync(fs, '$basePath.stderr', entry.stderrEncoding),
       );
     } catch (e) {
-      throw new io.ProcessException(executable, arguments, e.toString());
+      throw new io.ProcessException(
+          entry.executable, entry.arguments, e.toString());
     }
   }
 

@@ -68,8 +68,7 @@ class Manifest {
   /// metadata matches the specified criteria. If no arguments are specified,
   /// this will simply return the first entry that has not yet been invoked.
   ManifestEntry findPendingEntry({
-    String executable,
-    List<String> arguments,
+    List<String> command,
     ProcessStartMode mode,
     Encoding stdoutEncoding,
     Encoding stderrEncoding,
@@ -79,8 +78,7 @@ class Manifest {
         bool hit = !entry.invoked;
         // Ignore workingDirectory & environment, as they could
         // yield false negatives.
-        hit = hit && _isHit(entry.executable, executable);
-        hit = hit && _isHit(entry.arguments, arguments, _areListsEqual);
+        hit = hit && _isHit(entry.command, command, _areListsEqual);
         hit = hit && _isHit(entry.mode, mode);
         hit = hit && _isHit(entry.stdoutEncoding, stdoutEncoding);
         hit = hit && _isHit(entry.stderrEncoding, stderrEncoding);

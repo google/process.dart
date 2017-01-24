@@ -24,7 +24,7 @@ void main() {
     });
 
     test('start', () async {
-      Process process = await manager.start('sing', <String>['ppap']);
+      Process process = await manager.start(<String>['sing', 'ppap']);
       int exitCode = await process.exitCode;
       List<int> stdout = await consume(process.stdout);
       List<int> stderr = await consume(process.stderr);
@@ -36,7 +36,7 @@ void main() {
 
     test('run', () async {
       ProcessResult result =
-          await manager.run('dance', <String>['gangnam-style']);
+          await manager.run(<String>['dance', 'gangnam-style']);
       expect(result.pid, 101);
       expect(result.exitCode, 2);
       expect(result.stdout, '');
@@ -45,7 +45,7 @@ void main() {
 
     test('runSync', () {
       ProcessResult result =
-          manager.runSync('dance', <String>['gangnam-style']);
+          manager.runSync(<String>['dance', 'gangnam-style']);
       expect(result.pid, 101);
       expect(result.exitCode, 2);
       expect(result.stdout, '');

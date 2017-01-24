@@ -18,6 +18,7 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 
 import '../interface/process_manager.dart';
+import 'common.dart';
 import 'constants.dart';
 import 'manifest.dart';
 import 'manifest_entry.dart';
@@ -78,8 +79,7 @@ class RecordingProcessManager implements ProcessManager {
 
   @override
   Future<io.Process> start(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -87,8 +87,7 @@ class RecordingProcessManager implements ProcessManager {
     io.ProcessStartMode mode: io.ProcessStartMode.NORMAL,
   }) async {
     io.Process process = await delegate.start(
-      executable,
-      arguments,
+      command,
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
@@ -96,12 +95,12 @@ class RecordingProcessManager implements ProcessManager {
       mode: mode,
     );
 
-    String basename = _getBasename(process.pid, executable, arguments);
+    List<String> sanitizedCommand = sanitize(command);
+    String basename = _getBasename(process.pid, sanitizedCommand);
     ManifestEntry entry = new ManifestEntry(
       pid: process.pid,
       basename: basename,
-      executable: executable,
-      arguments: arguments,
+      command: sanitizedCommand,
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
@@ -126,8 +125,7 @@ class RecordingProcessManager implements ProcessManager {
 
   @override
   Future<io.ProcessResult> run(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -136,8 +134,7 @@ class RecordingProcessManager implements ProcessManager {
     Encoding stderrEncoding: io.SYSTEM_ENCODING,
   }) async {
     io.ProcessResult result = await delegate.run(
-      executable,
-      arguments,
+      command,
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
@@ -146,12 +143,12 @@ class RecordingProcessManager implements ProcessManager {
       stderrEncoding: stderrEncoding,
     );
 
-    String basename = _getBasename(result.pid, executable, arguments);
+    List<String> sanitizedCommand = sanitize(command);
+    String basename = _getBasename(result.pid, sanitizedCommand);
     _manifest.add(new ManifestEntry(
       pid: result.pid,
       basename: basename,
-      executable: executable,
-      arguments: arguments,
+      command: sanitizedCommand,
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
@@ -184,8 +181,7 @@ class RecordingProcessManager implements ProcessManager {
 
   @override
   io.ProcessResult runSync(
-    String executable,
-    List<String> arguments, {
+    List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -194,8 +190,7 @@ class RecordingProcessManager implements ProcessManager {
     Encoding stderrEncoding: io.SYSTEM_ENCODING,
   }) {
     io.ProcessResult result = delegate.runSync(
-      executable,
-      arguments,
+      command,
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
@@ -204,12 +199,12 @@ class RecordingProcessManager implements ProcessManager {
       stderrEncoding: stderrEncoding,
     );
 
-    String basename = _getBasename(result.pid, executable, arguments);
+    List<String> sanitizedCommand = sanitize(command);
+    String basename = _getBasename(result.pid, sanitizedCommand);
     _manifest.add(new ManifestEntry(
       pid: result.pid,
       basename: basename,
-      executable: executable,
-      arguments: arguments,
+      command: sanitizedCommand,
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
@@ -239,13 +234,18 @@ class RecordingProcessManager implements ProcessManager {
   }
 
   /// Returns a human-readable identifier for the specified executable.
-  String _getBasename(int pid, String executable, List<String> arguments) {
+  String _getBasename(int pid, List<String> sanitizedCommand) {
     String index = new NumberFormat('000').format(_manifest.length);
-    String identifier = path.basename(executable);
-    if (_kSkippableExecutables.contains(identifier) &&
-        arguments != null &&
-        arguments.isNotEmpty) {
-      identifier = path.basename(arguments.first);
+    String identifier = 'executable';
+    for (String element in sanitizedCommand) {
+      if (element.startsWith('-')) {
+        // Ignore flags.
+        continue;
+      }
+      identifier = path.basename(element);
+      if (!_kSkippableExecutables.contains(identifier)) {
+        break;
+      }
     }
     return '$index.$identifier.$pid';
   }

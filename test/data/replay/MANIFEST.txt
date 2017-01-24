@@ -2,8 +2,8 @@
   {
     "pid": 100,
     "basename": "001.sing.100",
-    "executable": "sing",
-    "arguments": [
+    "command": [
+      "sing",
       "ppap"
     ],
     "mode": "ProcessStartMode.NORMAL",
@@ -12,8 +12,8 @@
   {
     "pid": 101,
     "basename": "002.dance.101",
-    "executable": "dance",
-    "arguments": [
+    "command": [
+      "dance",
       "gangnam-style"
     ],
     "stdoutEncoding": "system",

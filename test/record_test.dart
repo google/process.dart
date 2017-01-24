@@ -30,7 +30,7 @@ void main() {
     });
 
     test('start', () async {
-      Process process = await manager.start('echo', <String>['foo']);
+      Process process = await manager.start(<String>['echo', 'foo']);
       int pid = process.pid;
       int exitCode = await process.exitCode;
       List<int> stdout = await consume(process.stdout);
@@ -46,13 +46,15 @@ void main() {
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
       expect(entry['pid'], pid);
+      expect(entry['command'], <String>['echo', 'foo']);
+      expect(entry['mode'], 'ProcessStartMode.NORMAL');
       expect(entry['exitCode'], exitCode);
       expect(recording.stdoutForEntryAt(0), stdout);
       expect(recording.stderrForEntryAt(0), stderr);
     });
 
     test('run', () async {
-      ProcessResult result = await manager.run('echo', <String>['bar']);
+      ProcessResult result = await manager.run(<String>['echo', 'bar']);
       int pid = result.pid;
       int exitCode = result.exitCode;
       String stdout = result.stdout;
@@ -68,13 +70,16 @@ void main() {
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
       expect(entry['pid'], pid);
+      expect(entry['command'], <String>['echo', 'bar']);
+      expect(entry['stdoutEncoding'], 'system');
+      expect(entry['stderrEncoding'], 'system');
       expect(entry['exitCode'], exitCode);
       expect(recording.stdoutForEntryAt(0), stdout);
       expect(recording.stderrForEntryAt(0), stderr);
     });
 
     test('runSync', () async {
-      ProcessResult result = manager.runSync('echo', <String>['baz']);
+      ProcessResult result = manager.runSync(<String>['echo', 'baz']);
       int pid = result.pid;
       int exitCode = result.exitCode;
       String stdout = result.stdout;
@@ -90,6 +95,9 @@ void main() {
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
       expect(entry['pid'], pid);
+      expect(entry['command'], <String>['echo', 'baz']);
+      expect(entry['stdoutEncoding'], 'system');
+      expect(entry['stderrEncoding'], 'system');
       expect(entry['exitCode'], exitCode);
       expect(recording.stdoutForEntryAt(0), stdout);
       expect(recording.stderrForEntryAt(0), stderr);

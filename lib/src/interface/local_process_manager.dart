@@ -12,17 +12,28 @@ import 'dart:io'
         ProcessStartMode,
         SYSTEM_ENCODING;
 
+import 'package:meta/meta.dart';
+
 import 'process_manager.dart';
+
+String _getExecutable(List<dynamic> command) => command.first.toString();
+
+List<String> _getArguments(List<dynamic> command) =>
+    command.skip(1).map((dynamic element) => element.toString()).toList();
 
 /// Local implementation of the `ProcessManager` interface.
 ///
 /// This implementation delegates directly to the corresponding static methods
 /// in `dart:io`.
+///
+/// All methods that take a `command` will run `toString()` on the command
+/// elements to derive the executable and arguments that should be passed to
+/// the underlying `dart:io` methods. Thus, the degenerate case of
+/// `List<String>` will trivially work as expected.
 class LocalProcessManager implements ProcessManager {
   @override
   Future<Process> start(
-    String executable,
-    List<String> arguments, {
+    @checked List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -30,8 +41,8 @@ class LocalProcessManager implements ProcessManager {
     ProcessStartMode mode: ProcessStartMode.NORMAL,
   }) {
     return Process.start(
-      executable,
-      arguments,
+      _getExecutable(command),
+      _getArguments(command),
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
@@ -42,8 +53,7 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   Future<ProcessResult> run(
-    String executable,
-    List<String> arguments, {
+    @checked List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -52,8 +62,8 @@ class LocalProcessManager implements ProcessManager {
     Encoding stderrEncoding: SYSTEM_ENCODING,
   }) {
     return Process.run(
-      executable,
-      arguments,
+      _getExecutable(command),
+      _getArguments(command),
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
@@ -65,8 +75,7 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   ProcessResult runSync(
-    String executable,
-    List<String> arguments, {
+    @checked List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -75,8 +84,8 @@ class LocalProcessManager implements ProcessManager {
     Encoding stderrEncoding: SYSTEM_ENCODING,
   }) {
     return Process.runSync(
-      executable,
-      arguments,
+      _getExecutable(command),
+      _getArguments(command),
       workingDirectory: workingDirectory,
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,

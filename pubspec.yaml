@@ -8,6 +8,7 @@ homepage: https://github.com/tvolkert/process
 dependencies:
   file: ^1.0.1
   intl: '>=0.14.0 <0.15.0'
+  meta: ^1.0.4
   path: ^1.4.0
 
 dev_dependencies:
