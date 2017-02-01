@@ -31,6 +31,9 @@ List<String> _getArguments(List<dynamic> command) =>
 /// the underlying `dart:io` methods. Thus, the degenerate case of
 /// `List<String>` will trivially work as expected.
 class LocalProcessManager implements ProcessManager {
+  /// Creates a new `LocalProcessManager`.
+  const LocalProcessManager();
+
   @override
   Future<Process> start(
     @checked List<Object> command, {
