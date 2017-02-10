@@ -18,10 +18,11 @@ import 'package:file/file.dart';
 import 'package:path/path.dart' as path;
 
 import '../interface/process_manager.dart';
+import 'can_run_manifest_entry.dart';
 import 'common.dart';
 import 'constants.dart';
 import 'manifest.dart';
-import 'manifest_entry.dart';
+import 'run_manifest_entry.dart';
 import 'recording_process_manager.dart';
 
 /// Fakes all process invocations by replaying a previously-recorded series
@@ -95,7 +96,7 @@ class ReplayProcessManager implements ProcessManager {
     bool runInShell: false,
     io.ProcessStartMode mode: io.ProcessStartMode.NORMAL,
   }) async {
-    ManifestEntry entry = _popEntry(command, mode: mode);
+    RunManifestEntry entry = _popRunEntry(command, mode: mode);
     _ReplayResult result = await _ReplayResult.create(this, entry);
     return result.asProcess(entry.daemon);
   }
@@ -110,7 +111,7 @@ class ReplayProcessManager implements ProcessManager {
     Encoding stdoutEncoding: io.SYSTEM_ENCODING,
     Encoding stderrEncoding: io.SYSTEM_ENCODING,
   }) async {
-    ManifestEntry entry = _popEntry(command,
+    RunManifestEntry entry = _popRunEntry(command,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
     return await _ReplayResult.create(this, entry);
   }
@@ -125,7 +126,7 @@ class ReplayProcessManager implements ProcessManager {
     Encoding stdoutEncoding: io.SYSTEM_ENCODING,
     Encoding stderrEncoding: io.SYSTEM_ENCODING,
   }) {
-    ManifestEntry entry = _popEntry(command,
+    RunManifestEntry entry = _popRunEntry(command,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
     return _ReplayResult.createSync(this, entry);
   }
@@ -133,14 +134,14 @@ class ReplayProcessManager implements ProcessManager {
   /// Finds and returns the next entry in the process manifest that matches
   /// the specified process arguments. Once found, it marks the manifest entry
   /// as having been invoked and thus not eligible for invocation again.
-  ManifestEntry _popEntry(
+  RunManifestEntry _popRunEntry(
     List<dynamic> command, {
     io.ProcessStartMode mode,
     Encoding stdoutEncoding,
     Encoding stderrEncoding,
   }) {
     List<String> sanitizedCommand = sanitize(command);
-    ManifestEntry entry = _manifest.findPendingEntry(
+    RunManifestEntry entry = _manifest.findPendingRunEntry(
       command: sanitizedCommand,
       mode: mode,
       stdoutEncoding: stdoutEncoding,
@@ -154,6 +155,18 @@ class ReplayProcessManager implements ProcessManager {
 
     entry.setInvoked();
     return entry;
+  }
+
+  @override
+  bool canRun(dynamic executable, {String workingDirectory}) {
+    CanRunManifestEntry entry = _manifest.findPendingCanRunEntry(
+      executable: executable.toString(),
+    );
+    if (entry == null) {
+      throw new ArgumentError('No matching invocation found for $executable');
+    }
+    entry.setInvoked();
+    return entry.result;
   }
 
   @override
@@ -192,7 +205,7 @@ class _ReplayResult implements io.ProcessResult {
 
   static Future<_ReplayResult> create(
     ReplayProcessManager manager,
-    ManifestEntry entry,
+    RunManifestEntry entry,
   ) async {
     FileSystem fs = manager.location.fileSystem;
     String basePath = path.join(manager.location.path, entry.basename);
@@ -220,7 +233,7 @@ class _ReplayResult implements io.ProcessResult {
 
   static _ReplayResult createSync(
     ReplayProcessManager manager,
-    ManifestEntry entry,
+    RunManifestEntry entry,
   ) {
     FileSystem fs = manager.location.fileSystem;
     String basePath = path.join(manager.location.path, entry.basename);
