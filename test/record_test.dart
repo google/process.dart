@@ -3,10 +3,11 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:io' show Process, ProcessResult, SYSTEM_ENCODING;
+import 'dart:io' show Platform, Process, ProcessResult, SYSTEM_ENCODING;
 
 import 'package:file/file.dart';
 import 'package:file/local.dart';
+import 'package:path/path.dart' as p;
 import 'package:process/process.dart';
 import 'package:process/record_replay.dart';
 import 'package:test/test.dart';
@@ -15,6 +16,9 @@ import 'utils.dart';
 
 void main() {
   FileSystem fs = new LocalFileSystem();
+  // TODO(goderbauer): refactor when github.com/google/platform.dart/issues/1
+  //     is available.
+  String newline = Platform.isWindows ? '\r\n' : '\n';
 
   group('RecordingProcessManager', () {
     Directory tmp;
@@ -30,7 +34,8 @@ void main() {
     });
 
     test('start', () async {
-      Process process = await manager.start(<String>['echo', 'foo']);
+      Process process =
+          await manager.start(<String>['echo', 'foo'], runInShell: true);
       int pid = process.pid;
       int exitCode = await process.exitCode;
       List<int> stdout = await consume(process.stdout);
@@ -45,22 +50,25 @@ void main() {
       _Recording recording = new _Recording(tmp);
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
-      expect(entry['pid'], pid);
-      expect(entry['command'], <String>['echo', 'foo']);
-      expect(entry['mode'], 'ProcessStartMode.NORMAL');
-      expect(entry['exitCode'], exitCode);
+      expect(entry['type'], 'run');
+      Map<String, dynamic> body = entry['body'];
+      expect(body['pid'], pid);
+      expect(body['command'], <String>['echo', 'foo']);
+      expect(body['mode'], 'ProcessStartMode.NORMAL');
+      expect(body['exitCode'], exitCode);
       expect(recording.stdoutForEntryAt(0), stdout);
       expect(recording.stderrForEntryAt(0), stderr);
     });
 
     test('run', () async {
-      ProcessResult result = await manager.run(<String>['echo', 'bar']);
+      ProcessResult result =
+          await manager.run(<String>['echo', 'bar'], runInShell: true);
       int pid = result.pid;
       int exitCode = result.exitCode;
       String stdout = result.stdout;
       String stderr = result.stderr;
       expect(exitCode, 0);
-      expect(stdout, 'bar\n');
+      expect(stdout, 'bar$newline');
       expect(stderr, isEmpty);
 
       // Force the recording to be written to disk.
@@ -69,23 +77,26 @@ void main() {
       _Recording recording = new _Recording(tmp);
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
-      expect(entry['pid'], pid);
-      expect(entry['command'], <String>['echo', 'bar']);
-      expect(entry['stdoutEncoding'], 'system');
-      expect(entry['stderrEncoding'], 'system');
-      expect(entry['exitCode'], exitCode);
+      expect(entry['type'], 'run');
+      Map<String, dynamic> body = entry['body'];
+      expect(body['pid'], pid);
+      expect(body['command'], <String>['echo', 'bar']);
+      expect(body['stdoutEncoding'], 'system');
+      expect(body['stderrEncoding'], 'system');
+      expect(body['exitCode'], exitCode);
       expect(recording.stdoutForEntryAt(0), stdout);
       expect(recording.stderrForEntryAt(0), stderr);
     });
 
     test('runSync', () async {
-      ProcessResult result = manager.runSync(<String>['echo', 'baz']);
+      ProcessResult result =
+          manager.runSync(<String>['echo', 'baz'], runInShell: true);
       int pid = result.pid;
       int exitCode = result.exitCode;
       String stdout = result.stdout;
       String stderr = result.stderr;
       expect(exitCode, 0);
-      expect(stdout, 'baz\n');
+      expect(stdout, 'baz$newline');
       expect(stderr, isEmpty);
 
       // Force the recording to be written to disk.
@@ -94,13 +105,33 @@ void main() {
       _Recording recording = new _Recording(tmp);
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
-      expect(entry['pid'], pid);
-      expect(entry['command'], <String>['echo', 'baz']);
-      expect(entry['stdoutEncoding'], 'system');
-      expect(entry['stderrEncoding'], 'system');
-      expect(entry['exitCode'], exitCode);
+      expect(entry['type'], 'run');
+      Map<String, dynamic> body = entry['body'];
+      expect(body['pid'], pid);
+      expect(body['command'], <String>['echo', 'baz']);
+      expect(body['stdoutEncoding'], 'system');
+      expect(body['stderrEncoding'], 'system');
+      expect(body['exitCode'], exitCode);
       expect(recording.stdoutForEntryAt(0), stdout);
       expect(recording.stderrForEntryAt(0), stderr);
+    });
+
+    test('canRun', () async {
+      String executable = p.join(tmp.path, 'bla.exe');
+      fs.file(executable).createSync();
+
+      bool result = manager.canRun(executable);
+
+      // Force the recording to be written to disk.
+      await manager.flush(finishRunningProcesses: true);
+
+      _Recording recording = new _Recording(tmp);
+      expect(recording.manifest, hasLength(1));
+      Map<String, dynamic> entry = recording.manifest.first;
+      expect(entry['type'], 'can_run');
+      Map<String, dynamic> body = entry['body'];
+      expect(body['executable'], executable);
+      expect(body['result'], result);
     });
   });
 }
@@ -116,10 +147,10 @@ class _Recording {
   }
 
   dynamic stdoutForEntryAt(int index) =>
-      _getStdioContent(manifest[index], 'stdout');
+      _getStdioContent(manifest[index]['body'], 'stdout');
 
   dynamic stderrForEntryAt(int index) =>
-      _getStdioContent(manifest[index], 'stderr');
+      _getStdioContent(manifest[index]['body'], 'stderr');
 
   dynamic _getFileContent(String name, Encoding encoding) {
     File file = dir.fileSystem.file('${dir.path}/$name');

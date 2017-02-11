@@ -18,11 +18,12 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 
 import '../interface/process_manager.dart';
+import 'can_run_manifest_entry.dart';
 import 'common.dart';
 import 'constants.dart';
 import 'manifest.dart';
-import 'manifest_entry.dart';
 import 'replay_process_manager.dart';
+import 'run_manifest_entry.dart';
 
 /// Records process invocation activity and serializes it to disk.
 ///
@@ -97,7 +98,7 @@ class RecordingProcessManager implements ProcessManager {
 
     List<String> sanitizedCommand = sanitize(command);
     String basename = _getBasename(process.pid, sanitizedCommand);
-    ManifestEntry entry = new ManifestEntry(
+    RunManifestEntry entry = new RunManifestEntry(
       pid: process.pid,
       basename: basename,
       command: sanitizedCommand,
@@ -145,7 +146,7 @@ class RecordingProcessManager implements ProcessManager {
 
     List<String> sanitizedCommand = sanitize(command);
     String basename = _getBasename(result.pid, sanitizedCommand);
-    _manifest.add(new ManifestEntry(
+    _manifest.add(new RunManifestEntry(
       pid: result.pid,
       basename: basename,
       command: sanitizedCommand,
@@ -201,7 +202,7 @@ class RecordingProcessManager implements ProcessManager {
 
     List<String> sanitizedCommand = sanitize(command);
     String basename = _getBasename(result.pid, sanitizedCommand);
-    _manifest.add(new ManifestEntry(
+    _manifest.add(new RunManifestEntry(
       pid: result.pid,
       basename: basename,
       command: sanitizedCommand,
@@ -226,6 +227,15 @@ class RecordingProcessManager implements ProcessManager {
       file.writeAsBytesSync(data, flush: true);
     else
       file.writeAsStringSync(data, encoding: encoding, flush: true);
+  }
+
+  @override
+  bool canRun(dynamic executable, {String workingDirectory}) {
+    bool result =
+        delegate.canRun(executable, workingDirectory: workingDirectory);
+    _manifest.add(new CanRunManifestEntry(
+        executable: executable.toString(), result: result));
+    return result;
   }
 
   @override
@@ -283,13 +293,13 @@ class RecordingProcessManager implements ProcessManager {
 
   /// Waits for all running processes to exit, and records their exit codes in
   /// the process manifest. Any process that doesn't exit within [timeout]
-  /// will be marked as a [ManifestEntry.daemon] and be signalled with
+  /// will be marked as a [RunManifestEntry.daemon] and be signalled with
   /// `SIGTERM`. If such processes *still* don't exit within [timeout] after
-  /// being signalled, they'll be marked as [ManifestEntry.notResponding].
+  /// being signalled, they'll be marked as [RunManifestEntry.notResponding].
   Future<Null> _waitForRunningProcessesToExit(Duration timeout) async {
     await _waitForRunningProcessesToExitWithTimeout(
         timeout: timeout,
-        onTimeout: (ManifestEntry entry) {
+        onTimeout: (RunManifestEntry entry) {
           entry.daemon = true;
           delegate.killPid(entry.pid);
         });
@@ -297,16 +307,16 @@ class RecordingProcessManager implements ProcessManager {
     // them to shutdown, wait one more time for those processes to exit.
     await _waitForRunningProcessesToExitWithTimeout(
         timeout: timeout,
-        onTimeout: (ManifestEntry entry) {
+        onTimeout: (RunManifestEntry entry) {
           entry.notResponding = true;
         });
   }
 
   Future<Null> _waitForRunningProcessesToExitWithTimeout({
     Duration timeout,
-    void onTimeout(ManifestEntry entry),
+    void onTimeout(RunManifestEntry entry),
   }) async {
-    void callOnTimeout(int pid) => onTimeout(_manifest.getEntry(pid));
+    void callOnTimeout(int pid) => onTimeout(_manifest.getRunEntry(pid));
     await Future
         .wait(new List<Future<int>>.from(_runningProcesses.values))
         .timeout(timeout,

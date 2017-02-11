@@ -1,3 +1,7 @@
+#### 1.1.0
+
+* Added support to transparently find the right executable under Windows.
+
 #### 1.0.1
 
 * The `executable` and `arguments` parameters have been merged into one

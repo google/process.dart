@@ -163,6 +163,9 @@ abstract class ProcessManager {
     Encoding stderrEncoding: SYSTEM_ENCODING,
   });
 
+  /// Returns `true` if the [executable] exists and if it can be executed.
+  bool canRun(dynamic executable, {String workingDirectory});
+
   /// Kills the process with id [pid].
   ///
   /// Where possible, sends the [signal] to the process with id

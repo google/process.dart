@@ -51,5 +51,10 @@ void main() {
       expect(result.stdout, '');
       expect(result.stderr, 'No one can dance like Psy\n');
     });
+
+    test('canRun', () {
+      bool result = manager.canRun('marathon');
+      expect(result, true);
+    });
   });
 }
