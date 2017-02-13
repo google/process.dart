@@ -73,7 +73,7 @@ class ReplayProcessManager implements ProcessManager {
     File manifestFile = fs.file(path.join(location.path, kManifestName));
     if (!manifestFile.existsSync()) {
       throw new ArgumentError.value(
-          location, 'location', 'Does not represent a valid recording.');
+          location, 'location', 'Does not represent a valid recording');
     }
 
     String content = await manifestFile.readAsString();
@@ -288,8 +288,12 @@ class _ReplayProcess implements io.Process {
     // Don't flush our stdio streams until we at least reach the outer event
     // loop. i.e. even if `streamDelay` is zero, we still want to use the timer.
     new Timer(result.manager.streamDelay, () {
-      _stdoutController.add(_stdout);
-      _stderrController.add(_stderr);
+      if (!_stdoutController.isClosed) {
+        _stdoutController.add(_stdout);
+      }
+      if (!_stderrController.isClosed) {
+        _stderrController.add(_stderr);
+      }
       if (!daemon) kill();
     });
   }
