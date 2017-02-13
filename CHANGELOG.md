@@ -1,3 +1,8 @@
+#### 2.0.1
+
+* Fixed bug in `ReplayProcessManager` whereby it could try to write to `stdout`
+  or `stderr` after the streams were closed.
+
 #### 2.0.0
 
 * Bumped `package:file` dependency to 2.0.1
