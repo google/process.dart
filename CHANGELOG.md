@@ -1,3 +1,7 @@
+#### 2.0.0
+
+* Bumped `package:file` dependency to 2.0.1
+
 #### 1.1.0
 
 * Added support to transparently find the right executable under Windows.
