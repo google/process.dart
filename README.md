@@ -1,7 +1,7 @@
 # Process
 
-[![Build Status -](https://travis-ci.org/tvolkert/process.svg?branch=master)](https://travis-ci.org/tvolkert/process)
-[![Coverage Status -](https://coveralls.io/repos/github/tvolkert/process/badge.svg?branch=master)](https://coveralls.io/github/tvolkert/process?branch=master)
+[![Build Status -](https://travis-ci.org/google/process.dart.svg?branch=master)](https://travis-ci.org/google/process.dart)
+[![Coverage Status -](https://coveralls.io/repos/github/google/process.dart/badge.svg?branch=master)](https://coveralls.io/github/google/process.dart?branch=master)
 
 A generic process invocation abstraction for Dart.
 
