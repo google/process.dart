@@ -319,8 +319,9 @@ class RecordingProcessManager implements ProcessManager {
     void callOnTimeout(int pid) => onTimeout(_manifest.getRunEntry(pid));
     await Future
         .wait(new List<Future<int>>.from(_runningProcesses.values))
-        .timeout(timeout,
-            onTimeout: () => _runningProcesses.keys.forEach(callOnTimeout));
+        .timeout(timeout, onTimeout: () {
+      _runningProcesses.keys.forEach(callOnTimeout);
+    });
   }
 
   /// Writes our process invocation manifest to disk in the destination folder.
