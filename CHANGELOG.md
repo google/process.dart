@@ -1,3 +1,6 @@
+### 2.0.3
+* relax dependency requirement for `platform`
+
 #### 2.0.2
 
 * Fix a strong mode function expression return type inference bug with Dart
