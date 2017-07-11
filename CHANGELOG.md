@@ -1,4 +1,9 @@
+### 2.0.4
+
+* relax dependency requirement for `intl`
+
 ### 2.0.3
+
 * relax dependency requirement for `platform`
 
 #### 2.0.2
