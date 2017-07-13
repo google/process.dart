@@ -1,3 +1,7 @@
+### 2.0.5
+
+* Bumped maximum Dart SDK version to 2.0.0-dev.infinity
+
 ### 2.0.4
 
 * relax dependency requirement for `intl`
