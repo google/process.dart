@@ -10,8 +10,7 @@ import 'manifest_entry.dart';
 import 'run_manifest_entry.dart';
 
 /// Tests if two lists contain pairwise equal elements.
-bool _areListsEqual/*<T>*/(
-    List<dynamic/*=T*/ > list1, List<dynamic/*=T*/ > list2) {
+bool _areListsEqual<T>(List<T> list1, List<T> list2) {
   int i = 0;
   return list1 != null &&
       list2 != null &&
