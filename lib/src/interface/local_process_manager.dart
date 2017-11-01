@@ -12,8 +12,6 @@ import 'dart:io'
         ProcessStartMode,
         SYSTEM_ENCODING;
 
-import 'package:meta/meta.dart';
-
 import 'common.dart';
 import 'process_manager.dart';
 
@@ -32,7 +30,7 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   Future<Process> start(
-    @checked List<Object> command, {
+    covariant List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -52,7 +50,7 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   Future<ProcessResult> run(
-    @checked List<Object> command, {
+    covariant List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -74,7 +72,7 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   ProcessResult runSync(
-    @checked List<Object> command, {
+    covariant List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
@@ -95,7 +93,7 @@ class LocalProcessManager implements ProcessManager {
   }
 
   @override
-  bool canRun(@checked Object executable, {String workingDirectory}) =>
+  bool canRun(covariant Object executable, {String workingDirectory}) =>
       getExecutablePath(executable, workingDirectory) != null;
 
   @override
