@@ -1,3 +1,10 @@
+### 2.0.6
+
+* Fix SDK constraint.
+* rename .analysis_options file to analaysis_options.yaml.
+* Use covariant in place of @checked.
+* Update comment style generics.
+
 ### 2.0.5
 
 * Bumped maximum Dart SDK version to 2.0.0-dev.infinity
