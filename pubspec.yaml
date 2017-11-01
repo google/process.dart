@@ -1,5 +1,5 @@
 name: process
-version: 2.0.5
+version: 2.0.6
 authors:
 - Todd Volkert <tvolkert@google.com>
 - Michael Goderbauer <goderbauer@google.com>
@@ -17,4 +17,4 @@ dev_dependencies:
   test: ^0.12.10
 
 environment:
-  sdk: '>=1.19.0 <2.0.0-dev.infinity'
+  sdk: '>=1.19.0 <2.0.0'
