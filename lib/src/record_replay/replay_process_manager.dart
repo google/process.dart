@@ -8,7 +8,6 @@ import 'dart:io' as io
     show
         IOSink,
         Process,
-        ProcessException,
         ProcessResult,
         ProcessSignal,
         ProcessStartMode,
@@ -17,6 +16,7 @@ import 'dart:io' as io
 import 'package:file/file.dart';
 import 'package:path/path.dart' as path;
 
+import '../interface/process_exception.dart';
 import '../interface/process_manager.dart';
 import 'can_run_manifest_entry.dart';
 import 'common.dart';
@@ -149,7 +149,7 @@ class ReplayProcessManager implements ProcessManager {
     );
 
     if (entry == null) {
-      throw new io.ProcessException(sanitizedCommand.first,
+      throw new ProcessException(sanitizedCommand.first,
           sanitizedCommand.skip(1).toList(), 'No matching invocation found');
     }
 
@@ -218,7 +218,7 @@ class _ReplayResult implements io.ProcessResult {
         stderr: await _getData(fs, '$basePath.stderr', entry.stderrEncoding),
       );
     } catch (e) {
-      throw new io.ProcessException(
+      throw new ProcessException(
           entry.executable, entry.arguments, e.toString());
     }
   }
@@ -246,7 +246,7 @@ class _ReplayResult implements io.ProcessResult {
         stderr: _getDataSync(fs, '$basePath.stderr', entry.stderrEncoding),
       );
     } catch (e) {
-      throw new io.ProcessException(
+      throw new ProcessException(
           entry.executable, entry.arguments, e.toString());
     }
   }

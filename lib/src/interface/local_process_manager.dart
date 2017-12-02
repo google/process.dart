@@ -13,6 +13,7 @@ import 'dart:io'
         SYSTEM_ENCODING;
 
 import 'common.dart';
+import 'process_exception.dart';
 import 'process_manager.dart';
 
 /// Local implementation of the `ProcessManager` interface.
@@ -110,7 +111,8 @@ String _getExecutable(
   }
   String exe = getExecutablePath(commandName, workingDirectory);
   if (exe == null) {
-    throw new ArgumentError('Cannot find executable for $commandName.');
+    throw new ProcessException(
+        commandName, _getArguments(command), 'No such file or directory');
   }
   return exe;
 }
