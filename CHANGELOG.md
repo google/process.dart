@@ -1,3 +1,7 @@
+### 2.0.7
+
+* Remove `set exitCode` instances
+
 ### 2.0.6
 
 * Fix SDK constraint.
