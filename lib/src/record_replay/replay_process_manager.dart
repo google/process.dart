@@ -307,11 +307,6 @@ class _ReplayProcess implements io.Process {
   @override
   Future<int> get exitCode => _exitCodeCompleter.future;
 
-  // TODO(tvolkert): Remove this once dart-lang/sdk@e5a16b1 lands in stable SDK.
-  @override // ignore: OVERRIDE_ON_NON_OVERRIDING_SETTER
-  set exitCode(Future<int> exitCode) =>
-      throw new UnsupportedError('set exitCode');
-
   @override
   io.IOSink get stdin => throw new UnimplementedError();
 

@@ -388,11 +388,6 @@ class _RecordingProcess implements io.Process {
   @override
   Future<int> get exitCode => delegate.exitCode;
 
-  // TODO(tvolkert): Remove this once dart-lang/sdk@e5a16b1 lands in stable SDK.
-  @override // ignore: OVERRIDE_ON_NON_OVERRIDING_SETTER
-  set exitCode(Future<int> exitCode) =>
-      throw new UnsupportedError('set exitCode');
-
   @override
   Stream<List<int>> get stdout {
     assert(_started);
