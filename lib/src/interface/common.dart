@@ -4,7 +4,6 @@
 
 import 'dart:io' show File, Directory;
 
-import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:platform/platform.dart';
 
@@ -12,7 +11,6 @@ import 'package:platform/platform.dart';
 /// to launch.
 ///
 /// Return `null` if the executable cannot be found.
-@visibleForTesting
 String getExecutablePath(String commandName, String workingDirectory,
     {Platform platform}) {
   platform ??= new LocalPlatform();
