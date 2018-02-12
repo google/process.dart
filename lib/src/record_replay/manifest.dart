@@ -20,10 +20,10 @@ bool _areListsEqual<T>(List<T> list1, List<T> list2) {
 
 /// Tells whether [testValue] is non-null and equal to [entryValue]. If
 /// [isEqual] is specified, it will be used to determine said equality.
-bool _isHit(
-  dynamic entryValue,
-  dynamic testValue, [
-  bool isEqual(dynamic value1, dynamic value2),
+bool _isHit<T>(
+  T entryValue,
+  T testValue, [
+  bool isEqual(T value1, T value2),
 ]) {
   if (testValue == null) {
     return true;
