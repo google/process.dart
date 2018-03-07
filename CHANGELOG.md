@@ -1,3 +1,8 @@
+### 2.0.8
+
+* Fixed method getArguments to qualify the map method with the specific
+  String type
+
 ### 2.0.7
 
 * Remove `set exitCode` instances
