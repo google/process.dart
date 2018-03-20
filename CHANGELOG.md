@@ -1,3 +1,7 @@
+#### 2.0.9
+
+* Bumped `package:file` dependency
+
 ### 2.0.8
 
 * Fixed method getArguments to qualify the map method with the specific
