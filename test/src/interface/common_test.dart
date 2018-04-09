@@ -3,19 +3,19 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:file/file.dart';
-import 'package:file/local.dart';
+import 'package:file/memory.dart';
 import 'package:path/path.dart' as p;
 import 'package:platform/platform.dart';
 import 'package:process/src/interface/common.dart';
 import 'package:test/test.dart';
 
 void main() {
-  FileSystem fs = new LocalFileSystem();
-
   group('getExecutablePath', () {
+    FileSystem fs;
     Directory workingDir, dir1, dir2, dir3;
 
     setUp(() {
+      fs = new MemoryFileSystem();
       workingDir = fs.systemTempDirectory.createTempSync('work_dir_');
       dir1 = fs.systemTempDirectory.createTempSync('dir1_');
       dir2 = fs.systemTempDirectory.createTempSync('dir2_');
@@ -32,11 +32,12 @@ void main() {
 
       setUp(() {
         platform = new FakePlatform(
-            operatingSystem: 'windows',
-            environment: <String, String>{
-              'PATH': '${dir1.path};${dir2.path}',
-              'PATHEXT': '.exe;.bat'
-            });
+          operatingSystem: 'windows',
+          environment: <String, String>{
+            'PATH': '${dir1.path};${dir2.path}',
+            'PATHEXT': '.exe;.bat'
+          },
+        );
       });
 
       test('absolute', () {
@@ -44,13 +45,21 @@ void main() {
         String expectedPath = command;
         fs.file(command).createSync();
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = p.withoutExtension(command);
-        executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -59,13 +68,21 @@ void main() {
         String expectedPath = p.join(dir2.path, command);
         fs.file(expectedPath).createSync();
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = p.withoutExtension(command);
-        executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -76,13 +93,21 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = p.withoutExtension(command);
-        executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -91,13 +116,21 @@ void main() {
         String expectedPath = p.join(workingDir.path, command);
         fs.file(expectedPath).createSync(recursive: true);
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = p.withoutExtension(command);
-        executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -108,13 +141,21 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = p.withoutExtension(command);
-        executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -127,19 +168,27 @@ void main() {
         fs.file(wrongPath1).createSync();
         fs.file(wrongPath2).createSync();
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
       test('not found', () {
         String command = 'foo.exe';
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         expect(executablePath, isNull);
       });
-    });
+    }, skip: 'https://github.com/google/file.dart/issues/68');
 
     group('on Linux', () {
       Platform platform;
@@ -157,8 +206,12 @@ void main() {
         fs.file(command).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -169,16 +222,24 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
       test('not found', () {
         String command = 'foo';
 
-        String executablePath =
-            getExecutablePath(command, workingDir.path, platform: platform);
+        String executablePath = getExecutablePath(
+          command,
+          workingDir.path,
+          platform: platform,
+          fs: fs,
+        );
         expect(executablePath, isNull);
       });
     });

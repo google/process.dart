@@ -1,3 +1,7 @@
+#### 3.0.0
+
+* Cleanup getExecutablePath() to better respect the platform
+
 #### 2.0.9
 
 * Bumped `package:file` dependency
