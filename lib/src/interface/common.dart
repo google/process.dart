@@ -39,8 +39,8 @@ String getExecutablePath(
   assert(_osToPathStyle[platform.operatingSystem] == fs.path.style.name);
 
   workingDirectory ??= fs.currentDirectory.path;
-  Style style = platform.isWindows ? Style.windows : Style.posix;
-  Context context = new Context(style: style, current: workingDirectory);
+  Context context =
+      new Context(style: fs.path.style, current: workingDirectory);
 
   // TODO(goderbauer): refactor when github.com/google/platform.dart/issues/2
   //     is available.
