@@ -143,7 +143,7 @@ class _Recording {
   _Recording(this.dir);
 
   List<Map<String, dynamic>> get manifest {
-    return JSON.decoder.convert(_getFileContent('MANIFEST.txt', UTF8));
+    return json.decoder.convert(_getFileContent('MANIFEST.txt', utf8));
   }
 
   dynamic stdoutForEntryAt(int index) =>

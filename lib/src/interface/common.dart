@@ -4,7 +4,7 @@
 
 import 'package:file/file.dart';
 import 'package:file/local.dart';
-import 'package:path/path.dart' show Context, Style;
+import 'package:path/path.dart' show Context;
 import 'package:platform/platform.dart';
 
 const Map<String, String> _osToPathStyle = const <String, String>{
