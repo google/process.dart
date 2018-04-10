@@ -4,7 +4,6 @@
 
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
-import 'package:path/path.dart' as p;
 import 'package:platform/platform.dart';
 import 'package:process/src/interface/common.dart';
 import 'package:test/test.dart';
@@ -14,13 +13,15 @@ void main() {
     FileSystem fs;
     Directory workingDir, dir1, dir2, dir3;
 
-    setUp(() {
-      fs = new MemoryFileSystem();
-      workingDir = fs.systemTempDirectory.createTempSync('work_dir_');
-      dir1 = fs.systemTempDirectory.createTempSync('dir1_');
-      dir2 = fs.systemTempDirectory.createTempSync('dir2_');
-      dir3 = fs.systemTempDirectory.createTempSync('dir3_');
-    });
+    void initialize(FileSystemStyle style) {
+      setUp(() {
+        fs = new MemoryFileSystem(style: style);
+        workingDir = fs.systemTempDirectory.createTempSync('work_dir_');
+        dir1 = fs.systemTempDirectory.createTempSync('dir1_');
+        dir2 = fs.systemTempDirectory.createTempSync('dir2_');
+        dir3 = fs.systemTempDirectory.createTempSync('dir3_');
+      });
+    }
 
     tearDown(() {
       <Directory>[workingDir, dir1, dir2, dir3]
@@ -29,6 +30,8 @@ void main() {
 
     group('on windows', () {
       Platform platform;
+
+      initialize(FileSystemStyle.windows);
 
       setUp(() {
         platform = new FakePlatform(
@@ -41,7 +44,7 @@ void main() {
       });
 
       test('absolute', () {
-        String command = p.join(dir3.path, 'bla.exe');
+        String command = fs.path.join(dir3.path, 'bla.exe');
         String expectedPath = command;
         fs.file(command).createSync();
 
@@ -53,7 +56,7 @@ void main() {
         );
         _expectSamePath(executablePath, expectedPath);
 
-        command = p.withoutExtension(command);
+        command = fs.path.withoutExtension(command);
         executablePath = getExecutablePath(
           command,
           workingDir.path,
@@ -65,7 +68,7 @@ void main() {
 
       test('in path', () {
         String command = 'bla.exe';
-        String expectedPath = p.join(dir2.path, command);
+        String expectedPath = fs.path.join(dir2.path, command);
         fs.file(expectedPath).createSync();
 
         String executablePath = getExecutablePath(
@@ -76,7 +79,7 @@ void main() {
         );
         _expectSamePath(executablePath, expectedPath);
 
-        command = p.withoutExtension(command);
+        command = fs.path.withoutExtension(command);
         executablePath = getExecutablePath(
           command,
           workingDir.path,
@@ -88,8 +91,8 @@ void main() {
 
       test('in path multiple times', () {
         String command = 'bla.exe';
-        String expectedPath = p.join(dir1.path, command);
-        String wrongPath = p.join(dir2.path, command);
+        String expectedPath = fs.path.join(dir1.path, command);
+        String wrongPath = fs.path.join(dir2.path, command);
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
@@ -101,7 +104,7 @@ void main() {
         );
         _expectSamePath(executablePath, expectedPath);
 
-        command = p.withoutExtension(command);
+        command = fs.path.withoutExtension(command);
         executablePath = getExecutablePath(
           command,
           workingDir.path,
@@ -112,8 +115,8 @@ void main() {
       });
 
       test('in subdir of work dir', () {
-        String command = p.join('.', 'foo', 'bla.exe');
-        String expectedPath = p.join(workingDir.path, command);
+        String command = fs.path.join('.', 'foo', 'bla.exe');
+        String expectedPath = fs.path.join(workingDir.path, command);
         fs.file(expectedPath).createSync(recursive: true);
 
         String executablePath = getExecutablePath(
@@ -124,7 +127,7 @@ void main() {
         );
         _expectSamePath(executablePath, expectedPath);
 
-        command = p.withoutExtension(command);
+        command = fs.path.withoutExtension(command);
         executablePath = getExecutablePath(
           command,
           workingDir.path,
@@ -135,9 +138,9 @@ void main() {
       });
 
       test('in work dir', () {
-        String command = p.join('.', 'bla.exe');
-        String expectedPath = p.join(workingDir.path, command);
-        String wrongPath = p.join(dir2.path, command);
+        String command = fs.path.join('.', 'bla.exe');
+        String expectedPath = fs.path.join(workingDir.path, command);
+        String wrongPath = fs.path.join(dir2.path, command);
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
@@ -149,7 +152,7 @@ void main() {
         );
         _expectSamePath(executablePath, expectedPath);
 
-        command = p.withoutExtension(command);
+        command = fs.path.withoutExtension(command);
         executablePath = getExecutablePath(
           command,
           workingDir.path,
@@ -161,9 +164,9 @@ void main() {
 
       test('with multiple extensions', () {
         String command = 'foo';
-        String expectedPath = p.join(dir1.path, '$command.exe');
-        String wrongPath1 = p.join(dir1.path, '$command.bat');
-        String wrongPath2 = p.join(dir2.path, '$command.exe');
+        String expectedPath = fs.path.join(dir1.path, '$command.exe');
+        String wrongPath1 = fs.path.join(dir1.path, '$command.bat');
+        String wrongPath2 = fs.path.join(dir2.path, '$command.exe');
         fs.file(expectedPath).createSync();
         fs.file(wrongPath1).createSync();
         fs.file(wrongPath2).createSync();
@@ -188,10 +191,12 @@ void main() {
         );
         expect(executablePath, isNull);
       });
-    }, skip: 'https://github.com/google/file.dart/issues/68');
+    });
 
     group('on Linux', () {
       Platform platform;
+
+      initialize(FileSystemStyle.posix);
 
       setUp(() {
         platform = new FakePlatform(
@@ -200,9 +205,9 @@ void main() {
       });
 
       test('absolute', () {
-        String command = p.join(dir3.path, 'bla');
+        String command = fs.path.join(dir3.path, 'bla');
         String expectedPath = command;
-        String wrongPath = p.join(dir3.path, 'bla.bat');
+        String wrongPath = fs.path.join(dir3.path, 'bla.bat');
         fs.file(command).createSync();
         fs.file(wrongPath).createSync();
 
@@ -217,8 +222,8 @@ void main() {
 
       test('in path multiple times', () {
         String command = 'xxx';
-        String expectedPath = p.join(dir1.path, command);
-        String wrongPath = p.join(dir2.path, command);
+        String expectedPath = fs.path.join(dir1.path, command);
+        String wrongPath = fs.path.join(dir2.path, command);
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 

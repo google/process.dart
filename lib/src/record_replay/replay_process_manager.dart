@@ -61,7 +61,7 @@ class ReplayProcessManager implements ProcessManager {
   /// start listening.
   static Future<ReplayProcessManager> create(
     Directory location, {
-    Duration streamDelay: Duration.ZERO,
+    Duration streamDelay: Duration.zero,
   }) async {
     assert(streamDelay != null);
 

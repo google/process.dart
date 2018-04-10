@@ -1,3 +1,7 @@
+#### 3.0.1
+
+* General cleanup
+
 #### 3.0.0
 
 * Cleanup getExecutablePath() to better respect the platform
