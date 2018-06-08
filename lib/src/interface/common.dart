@@ -86,5 +86,5 @@ Iterable<String> _getCandidatePaths(
       .map((String path) =>
           withExtensions.map((String command) => context.join(path, command)))
       .expand((Iterable<String> e) => e)
-      .toList();
+      .toList().cast<String>();
 }
