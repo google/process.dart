@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:io' show ProcessStartMode, SYSTEM_ENCODING;
+import 'dart:io' show ProcessStartMode, systemEncoding;
 
 import 'manifest_entry.dart';
 
@@ -23,7 +23,7 @@ ProcessStartMode _getProcessStartMode(String value) {
 /// Gets an `Encoding` instance by the encoding name.
 Encoding _getEncoding(String encoding) {
   if (encoding == 'system') {
-    return SYSTEM_ENCODING;
+    return systemEncoding;
   } else if (encoding != null) {
     return Encoding.getByName(encoding);
   }

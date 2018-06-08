@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:io' show Platform, Process, ProcessResult, SYSTEM_ENCODING;
+import 'dart:io' show Platform, Process, ProcessResult, systemEncoding;
 
 import 'package:file/file.dart';
 import 'package:file/local.dart';
@@ -54,7 +54,7 @@ void main() {
       Map<String, dynamic> body = entry['body'];
       expect(body['pid'], pid);
       expect(body['command'], <String>['echo', 'foo']);
-      expect(body['mode'], 'ProcessStartMode.NORMAL');
+      expect(body['mode'], 'normal');
       expect(body['exitCode'], exitCode);
       expect(recording.stdoutForEntryAt(0), stdout);
       expect(recording.stderrForEntryAt(0), stderr);
@@ -143,7 +143,9 @@ class _Recording {
   _Recording(this.dir);
 
   List<Map<String, dynamic>> get manifest {
-    return json.decoder.convert(_getFileContent('MANIFEST.txt', utf8));
+    return json.decoder
+        .convert(_getFileContent('MANIFEST.txt', utf8))
+        .cast<Map<String, dynamic>>();
   }
 
   dynamic stdoutForEntryAt(int index) =>
@@ -165,7 +167,7 @@ class _Recording {
     Encoding encoding;
     if (encodingName != null)
       encoding = encodingName == 'system'
-          ? SYSTEM_ENCODING
+          ? systemEncoding
           : Encoding.getByName(encodingName);
     return _getFileContent('$basename.$type', encoding);
   }
