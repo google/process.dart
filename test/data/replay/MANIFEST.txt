@@ -8,7 +8,7 @@
         "sing",
         "ppap"
       ],
-      "mode": "ProcessStartMode.NORMAL",
+      "mode": "normal",
       "exitCode": 0
     }
   },

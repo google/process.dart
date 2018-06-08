@@ -12,5 +12,5 @@ List<String> sanitize(List<dynamic> command) {
       return element.sanitized;
     }
     return element.toString();
-  }).toList();
+  }).toList().cast<String>();
 }

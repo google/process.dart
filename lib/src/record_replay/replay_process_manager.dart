@@ -12,7 +12,7 @@ import 'dart:io' as io
         ProcessResult,
         ProcessSignal,
         ProcessStartMode,
-        SYSTEM_ENCODING;
+        systemEncoding;
 
 import 'package:file/file.dart';
 import 'package:path/path.dart' as path;
@@ -94,7 +94,7 @@ class ReplayProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    io.ProcessStartMode mode: io.ProcessStartMode.NORMAL,
+    io.ProcessStartMode mode: io.ProcessStartMode.normal,
   }) async {
     RunManifestEntry entry = _popRunEntry(command, mode: mode);
     _ReplayResult result = await _ReplayResult.create(this, entry);
@@ -108,8 +108,8 @@ class ReplayProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    Encoding stdoutEncoding: io.SYSTEM_ENCODING,
-    Encoding stderrEncoding: io.SYSTEM_ENCODING,
+    Encoding stdoutEncoding: io.systemEncoding,
+    Encoding stderrEncoding: io.systemEncoding,
   }) async {
     RunManifestEntry entry = _popRunEntry(command,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
@@ -123,8 +123,8 @@ class ReplayProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    Encoding stdoutEncoding: io.SYSTEM_ENCODING,
-    Encoding stderrEncoding: io.SYSTEM_ENCODING,
+    Encoding stdoutEncoding: io.systemEncoding,
+    Encoding stderrEncoding: io.systemEncoding,
   }) {
     RunManifestEntry entry = _popRunEntry(command,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
@@ -170,7 +170,7 @@ class ReplayProcessManager implements ProcessManager {
   }
 
   @override
-  bool killPid(int pid, [io.ProcessSignal signal = io.ProcessSignal.SIGTERM]) {
+  bool killPid(int pid, [io.ProcessSignal signal = io.ProcessSignal.sigterm]) {
     throw new UnsupportedError(
         "$runtimeType.killPid() has not been implemented because at the time "
         "of its writing, it wasn't needed. If you're hitting this error, you "
@@ -311,7 +311,7 @@ class _ReplayProcess implements io.Process {
   io.IOSink get stdin => throw new UnimplementedError();
 
   @override
-  bool kill([io.ProcessSignal signal = io.ProcessSignal.SIGTERM]) {
+  bool kill([io.ProcessSignal signal = io.ProcessSignal.sigterm]) {
     if (!_exitCodeCompleter.isCompleted) {
       _stdoutController.close();
       _stderrController.close();
