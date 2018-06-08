@@ -10,7 +10,7 @@ import 'dart:io'
         ProcessResult,
         ProcessSignal,
         ProcessStartMode,
-        SYSTEM_ENCODING;
+        systemEncoding;
 
 import 'common.dart';
 import 'process_manager.dart';
@@ -35,7 +35,7 @@ class LocalProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    ProcessStartMode mode: ProcessStartMode.NORMAL,
+    ProcessStartMode mode: ProcessStartMode.normal,
   }) {
     return Process.start(
       _getExecutable(command, workingDirectory, runInShell),
@@ -55,8 +55,8 @@ class LocalProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    Encoding stdoutEncoding: SYSTEM_ENCODING,
-    Encoding stderrEncoding: SYSTEM_ENCODING,
+    Encoding stdoutEncoding: systemEncoding,
+    Encoding stderrEncoding: systemEncoding,
   }) {
     return Process.run(
       _getExecutable(command, workingDirectory, runInShell),
@@ -77,8 +77,8 @@ class LocalProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    Encoding stdoutEncoding: SYSTEM_ENCODING,
-    Encoding stderrEncoding: SYSTEM_ENCODING,
+    Encoding stdoutEncoding: systemEncoding,
+    Encoding stderrEncoding: systemEncoding,
   }) {
     return Process.runSync(
       _getExecutable(command, workingDirectory, runInShell),
@@ -97,7 +97,7 @@ class LocalProcessManager implements ProcessManager {
       getExecutablePath(executable, workingDirectory) != null;
 
   @override
-  bool killPid(int pid, [ProcessSignal signal = ProcessSignal.SIGTERM]) {
+  bool killPid(int pid, [ProcessSignal signal = ProcessSignal.sigterm]) {
     return Process.killPid(pid, signal);
   }
 }

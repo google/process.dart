@@ -11,7 +11,7 @@ import 'dart:io' as io
         ProcessResult,
         ProcessSignal,
         ProcessStartMode,
-        SYSTEM_ENCODING;
+        systemEncoding;
 
 import 'package:file/file.dart';
 import 'package:intl/intl.dart';
@@ -85,7 +85,7 @@ class RecordingProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    io.ProcessStartMode mode: io.ProcessStartMode.NORMAL,
+    io.ProcessStartMode mode: io.ProcessStartMode.normal,
   }) async {
     io.Process process = await delegate.start(
       command,
@@ -131,8 +131,8 @@ class RecordingProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    Encoding stdoutEncoding: io.SYSTEM_ENCODING,
-    Encoding stderrEncoding: io.SYSTEM_ENCODING,
+    Encoding stdoutEncoding: io.systemEncoding,
+    Encoding stderrEncoding: io.systemEncoding,
   }) async {
     io.ProcessResult result = await delegate.run(
       command,
@@ -187,8 +187,8 @@ class RecordingProcessManager implements ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    Encoding stdoutEncoding: io.SYSTEM_ENCODING,
-    Encoding stderrEncoding: io.SYSTEM_ENCODING,
+    Encoding stdoutEncoding: io.systemEncoding,
+    Encoding stderrEncoding: io.systemEncoding,
   }) {
     io.ProcessResult result = delegate.runSync(
       command,
@@ -239,7 +239,7 @@ class RecordingProcessManager implements ProcessManager {
   }
 
   @override
-  bool killPid(int pid, [io.ProcessSignal signal = io.ProcessSignal.SIGTERM]) {
+  bool killPid(int pid, [io.ProcessSignal signal = io.ProcessSignal.sigterm]) {
     return delegate.killPid(pid, signal);
   }
 
@@ -363,7 +363,7 @@ class _RecordingProcess implements io.Process {
   ) async {
     String path = '${manager.destination.path}/$basename.$suffix';
     File file = await manager.fs.file(path).create();
-    RandomAccessFile recording = await file.open(mode: FileMode.WRITE);
+    RandomAccessFile recording = await file.open(mode: FileMode.write);
     stream.listen(
       (List<int> data) {
         // Write synchronously to guarantee that the order of data
@@ -410,6 +410,6 @@ class _RecordingProcess implements io.Process {
   int get pid => delegate.pid;
 
   @override
-  bool kill([io.ProcessSignal signal = io.ProcessSignal.SIGTERM]) =>
+  bool kill([io.ProcessSignal signal = io.ProcessSignal.sigterm]) =>
       delegate.kill(signal);
 }

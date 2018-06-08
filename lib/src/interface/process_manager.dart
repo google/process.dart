@@ -10,7 +10,7 @@ import 'dart:io'
         ProcessResult,
         ProcessSignal,
         ProcessStartMode,
-        SYSTEM_ENCODING;
+        systemEncoding;
 
 /// Manages the creation of abstract processes.
 ///
@@ -64,32 +64,32 @@ abstract class ProcessManager {
   ///       stderr.addStream(process.stderr);
   ///     });
   ///
-  /// If [mode] is [ProcessStartMode.NORMAL] (the default) a child
+  /// If [mode] is [ProcessStartMode.normal] (the default) a child
   /// process will be started with `stdin`, `stdout` and `stderr`
   /// connected.
   ///
-  /// If `mode` is [ProcessStartMode.DETACHED] a detached process will
+  /// If `mode` is [ProcessStartMode.detached] a detached process will
   /// be created. A detached process has no connection to its parent,
   /// and can keep running on its own when the parent dies. The only
   /// information available from a detached process is its `pid`. There
   /// is no connection to its `stdin`, `stdout` or `stderr`, nor will
   /// the process' exit code become available when it terminates.
   ///
-  /// If `mode` is [ProcessStartMode.DETACHED_WITH_STDIO] a detached
+  /// If `mode` is [ProcessStartMode.detachedWithStdio] a detached
   /// process will be created where the `stdin`, `stdout` and `stderr`
   /// are connected. The creator can communicate with the child through
   /// these. The detached process will keep running even if these
   /// communication channels are closed. The process' exit code will
   /// not become available when it terminated.
   ///
-  /// The default value for `mode` is `ProcessStartMode.NORMAL`.
+  /// The default value for `mode` is `ProcessStartMode.normal`.
   Future<Process> start(
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    ProcessStartMode mode: ProcessStartMode.NORMAL,
+    ProcessStartMode mode: ProcessStartMode.normal,
   });
 
   /// Starts a process and runs it non-interactively to completion.
@@ -120,7 +120,7 @@ abstract class ProcessManager {
   ///
   /// The encoding used for decoding `stdout` and `stderr` into text is
   /// controlled through [stdoutEncoding] and [stderrEncoding]. The
-  /// default encoding is [SYSTEM_ENCODING]. If `null` is used no
+  /// default encoding is [systemEncoding]. If `null` is used no
   /// decoding will happen and the [ProcessResult] will hold binary
   /// data.
   ///
@@ -142,8 +142,8 @@ abstract class ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    Encoding stdoutEncoding: SYSTEM_ENCODING,
-    Encoding stderrEncoding: SYSTEM_ENCODING,
+    Encoding stdoutEncoding: systemEncoding,
+    Encoding stderrEncoding: systemEncoding,
   });
 
   /// Starts a process and runs it to completion. This is a synchronous
@@ -159,8 +159,8 @@ abstract class ProcessManager {
     Map<String, String> environment,
     bool includeParentEnvironment: true,
     bool runInShell: false,
-    Encoding stdoutEncoding: SYSTEM_ENCODING,
-    Encoding stderrEncoding: SYSTEM_ENCODING,
+    Encoding stdoutEncoding: systemEncoding,
+    Encoding stderrEncoding: systemEncoding,
   });
 
   /// Returns `true` if the [executable] exists and if it can be executed.
@@ -170,7 +170,7 @@ abstract class ProcessManager {
   ///
   /// Where possible, sends the [signal] to the process with id
   /// `pid`. This includes Linux and OS X. The default signal is
-  /// [ProcessSignal.SIGTERM] which will normally terminate the
+  /// [ProcessSignal.sigterm] which will normally terminate the
   /// process.
   ///
   /// On platforms without signal support, including Windows, the call
@@ -180,5 +180,5 @@ abstract class ProcessManager {
   /// Returns `true` if the signal is successfully delivered to the
   /// process. Otherwise the signal could not be sent, usually meaning
   /// that the process is already dead.
-  bool killPid(int pid, [ProcessSignal signal = ProcessSignal.SIGTERM]);
+  bool killPid(int pid, [ProcessSignal signal = ProcessSignal.sigterm]);
 }
