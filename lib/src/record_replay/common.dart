@@ -7,10 +7,13 @@ import 'command_element.dart';
 /// Sanitizes the specified [command] by running any non-deterministic
 /// segments through a [sanitizer](CommandSanitizer) if possible.
 List<String> sanitize(List<dynamic> command) {
-  return command.map((dynamic element) {
-    if (element is CommandElement) {
-      return element.sanitized;
-    }
-    return element.toString();
-  }).toList().cast<String>();
+  return command
+      .map((dynamic element) {
+        if (element is CommandElement) {
+          return element.sanitized;
+        }
+        return element.toString();
+      })
+      .toList()
+      .cast<String>();
 }
