@@ -116,4 +116,9 @@ String _getExecutable(
 }
 
 List<String> _getArguments(List<dynamic> command) =>
-    command.skip(1).map((dynamic element) => element.toString()).toList();
+    // Adding a specific type to map in order to workaround dart issue
+    // https://github.com/dart-lang/sdk/issues/32414
+    command
+        .skip(1)
+        .map<String>((dynamic element) => element.toString())
+        .toList();

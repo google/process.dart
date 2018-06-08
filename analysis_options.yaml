@@ -1,9 +1,11 @@
 analyzer:
   language:
-    enableStrictCallChecks: true
     enableSuperMixins: true
-  strong-mode: true
+  strong-mode:
+    implicit-dynamic: false
   errors:
+    missing_required_param: warning
+    missing_return: warning
     # Allow having TODOs in the code
     todo: ignore
 
@@ -60,7 +62,7 @@ linter:
     - type_annotate_public_apis
     - type_init_formals
     - unawaited_futures
-    - unnecessary_brace_in_string_interp
+    - unnecessary_brace_in_string_interps
     - unnecessary_getters_setters
 
     # === pub rules ===

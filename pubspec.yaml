@@ -1,5 +1,5 @@
 name: process
-version: 2.0.6
+version: 3.0.1
 authors:
 - Todd Volkert <tvolkert@google.com>
 - Michael Goderbauer <goderbauer@google.com>
@@ -7,14 +7,14 @@ description: A pluggable, mockable process invocation abstraction for Dart.
 homepage: https://github.com/google/process.dart
 
 dependencies:
-  file: ^2.0.1
+  file: '>=2.0.1'
   intl: '>=0.14.0 <0.16.0'
-  meta: ^1.0.4
-  path: ^1.4.0
-  platform: '>=1.0.1 <3.0.0'
+  meta: ^1.1.2
+  path: ^1.5.1
+  platform: '>=1.0.1'
 
 dev_dependencies:
-  test: ^0.12.10
+  test: ^0.12.33
 
 environment:
-  sdk: '>=1.19.0 <2.0.0'
+  sdk: '>=2.0.0-dev.28.0 <2.0.0'
