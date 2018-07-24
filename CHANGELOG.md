@@ -1,3 +1,7 @@
+#### 3.0.3
+
+* Update dependency on `package:file`
+
 #### 3.0.2
 
 * Remove upper case constants.
