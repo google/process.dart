@@ -317,8 +317,7 @@ class RecordingProcessManager implements ProcessManager {
     void onTimeout(RunManifestEntry entry),
   }) async {
     void callOnTimeout(int pid) => onTimeout(_manifest.getRunEntry(pid));
-    await Future
-        .wait(new List<Future<int>>.from(_runningProcesses.values))
+    await Future.wait(new List<Future<int>>.from(_runningProcesses.values))
         .timeout(timeout, onTimeout: () {
       _runningProcesses.keys.forEach(callOnTimeout);
     });
