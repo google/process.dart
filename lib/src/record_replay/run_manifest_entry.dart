@@ -97,7 +97,7 @@ class RunManifestEntry extends ManifestEntry {
     RunManifestEntry entry = new RunManifestEntry(
       pid: data['pid'],
       basename: data['basename'],
-      command: data['command'],
+      command: data['command']?.cast<String>(),
       workingDirectory: data['workingDirectory'],
       environment: data['environment'],
       includeParentEnvironment: data['includeParentEnvironment'],

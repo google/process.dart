@@ -1,5 +1,5 @@
 name: process
-version: 3.0.3
+version: 3.0.4
 authors:
 - Todd Volkert <tvolkert@google.com>
 - Michael Goderbauer <goderbauer@google.com>
@@ -17,4 +17,4 @@ dev_dependencies:
   test: ^0.12.33
 
 environment:
-  sdk: '>=2.0.0-dev.54.0 <2.0.0'
+  sdk: '>=2.0.0-dev.61 <3.0.0'
