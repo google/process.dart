@@ -1,3 +1,9 @@
+
+#### 3.0.4
+
+* Fix unit tests
+* Update SDK constraint to 3.
+
 #### 3.0.3
 
 * Update dependency on `package:file`
