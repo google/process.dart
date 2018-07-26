@@ -46,7 +46,8 @@ class Manifest {
   /// If [json] does not represent a valid JSON string (matching the format of
   /// [toJson]), a [FormatException] will be thrown.
   factory Manifest.fromJson(String json) {
-    List<Map<String, dynamic>> decoded = new JsonDecoder().convert(json).cast<Map<String, dynamic>>();
+    List<Map<String, dynamic>> decoded =
+        new JsonDecoder().convert(json).cast<Map<String, dynamic>>();
     Manifest manifest = new Manifest();
     decoded.forEach((Map<String, dynamic> entry) {
       switch (entry['type']) {
