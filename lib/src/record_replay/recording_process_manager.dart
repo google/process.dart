@@ -119,6 +119,7 @@ class RecordingProcessManager implements ProcessManager {
     _runningProcesses[process.pid] = result.exitCode.then((int exitCode) {
       _runningProcesses.remove(process.pid);
       entry.exitCode = exitCode;
+      return exitCode;
     });
 
     return result;
@@ -320,6 +321,7 @@ class RecordingProcessManager implements ProcessManager {
     await Future.wait(new List<Future<int>>.from(_runningProcesses.values))
         .timeout(timeout, onTimeout: () {
       _runningProcesses.keys.forEach(callOnTimeout);
+      return null;
     });
   }
 
