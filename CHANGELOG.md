@@ -1,4 +1,8 @@
 
+#### 3.0.6
+
+* Added class `Process`, a simple wrapper around dart:io's `Process` class.
+
 #### 3.0.5
 
 * Fixes for missing_return analysis errors with 2.10.0-dev.1.0.
