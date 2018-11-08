@@ -1,4 +1,8 @@
 
+#### 3.0.8
+
+* Fixed bug in `ProcessWrapper`
+
 #### 3.0.7
 
 * Renamed `Process` to `ProcessWrapper`
