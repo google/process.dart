@@ -5,10 +5,10 @@
 import 'dart:io' as io;
 
 /// A wrapper around an [io.Process] class that adds some convenience methods.
-class Process implements io.Process {
-  /// Constructs a [Process] object that delegates to the specified underlying
-  /// object.
-  const Process(this.delegate);
+class ProcessWrapper implements io.Process {
+  /// Constructs a [ProcessWrapper] object that delegates to the specified
+  /// underlying object.
+  const ProcessWrapper(this.delegate);
 
   final io.Process delegate;
 
