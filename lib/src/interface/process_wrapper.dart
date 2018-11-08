@@ -2,18 +2,47 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:io' as io;
 
 /// A wrapper around an [io.Process] class that adds some convenience methods.
 class ProcessWrapper implements io.Process {
   /// Constructs a [ProcessWrapper] object that delegates to the specified
   /// underlying object.
-  const ProcessWrapper(this.delegate);
+  ProcessWrapper(this._delegate)
+      : _stdout = new StreamController<List<int>>(),
+        _stderr = new StreamController<List<int>>(),
+        _stdoutDone = new Completer<void>(),
+        _stderrDone = new Completer<void>() {
+    _monitorStdioStream(_delegate.stdout, _stdout, _stdoutDone);
+    _monitorStdioStream(_delegate.stderr, _stderr, _stderrDone);
+  }
 
-  final io.Process delegate;
+  final io.Process _delegate;
+  final StreamController<List<int>> _stdout;
+  final StreamController<List<int>> _stderr;
+  final Completer<void> _stdoutDone;
+  final Completer<void> _stderrDone;
+
+  /// Listens to the specified [stream], repeating events on it via
+  /// [controller], and completing [completer] once the stream is done.
+  void _monitorStdioStream(
+    Stream<List<int>> stream,
+    StreamController<List<int>> controller,
+    Completer<void> completer,
+  ) {
+    stream.listen(
+      controller.add,
+      onError: controller.addError,
+      onDone: () {
+        controller.close;
+        completer.complete();
+      },
+    );
+  }
 
   @override
-  Future<int> get exitCode => delegate.exitCode;
+  Future<int> get exitCode => _delegate.exitCode;
 
   /// A [Future] that completes when the process has exited and its standard
   /// output and error streams have closed.
@@ -26,9 +55,9 @@ class ProcessWrapper implements io.Process {
   Future<int> get done async {
     int result;
     await Future.wait<void>(<Future<void>>[
-      delegate.stdout.length,
-      delegate.stderr.length,
-      delegate.exitCode.then((int value) {
+      _stdoutDone.future,
+      _stderrDone.future,
+      _delegate.exitCode.then((int value) {
         result = value;
       }),
     ]);
@@ -38,18 +67,18 @@ class ProcessWrapper implements io.Process {
 
   @override
   bool kill([io.ProcessSignal signal = io.ProcessSignal.sigterm]) {
-    return delegate.kill(signal);
+    return _delegate.kill(signal);
   }
 
   @override
-  int get pid => delegate.pid;
+  int get pid => _delegate.pid;
 
   @override
-  Stream<List<int>> get stderr => delegate.stderr;
+  io.IOSink get stdin => _delegate.stdin;
 
   @override
-  io.IOSink get stdin => delegate.stdin;
+  Stream<List<int>> get stdout => _stdout.stream;
 
   @override
-  Stream<List<int>> get stdout => delegate.stdout;
+  Stream<List<int>> get stderr => _stderr.stream;
 }

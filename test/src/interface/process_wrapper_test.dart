@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:process/process.dart';
@@ -10,14 +11,21 @@ import 'package:test/test.dart';
 
 void main() {
   group('done', () {
-    test('completes only when all done', () async {
-      TestProcess delegate = new TestProcess();
-      ProcessWrapper process = new ProcessWrapper(delegate);
-      bool done = false;
+    TestProcess delegate;
+    ProcessWrapper process;
+    bool done;
+
+    setUp(() {
+      delegate = TestProcess();
+      process = ProcessWrapper(delegate);
+      done = false;
       // ignore: unawaited_futures
       process.done.then((int result) {
         done = true;
       });
+    });
+
+    test('completes only when all done', () async {
       expect(done, isFalse);
       delegate.exitCodeCompleter.complete(0);
       await Future<void>.value();
@@ -30,14 +38,26 @@ void main() {
       expect(done, isTrue);
       expect(await process.exitCode, 0);
     });
+
+    test('works in conjunction with subscribers to stdio streams', () async {
+      process.stdout
+          .transform<String>(utf8.decoder)
+          .transform<String>(const LineSplitter())
+          .listen(print);
+      delegate.exitCodeCompleter.complete(0);
+      await delegate.stdoutController.close();
+      await delegate.stderrController.close();
+      await Future<void>.value();
+      expect(done, isTrue);
+    });
   });
 }
 
 class TestProcess implements io.Process {
   TestProcess([this.pid = 123])
-      : exitCodeCompleter = new Completer<int>(),
-        stdoutController = new StreamController<List<int>>(),
-        stderrController = new StreamController<List<int>>();
+      : exitCodeCompleter = Completer<int>(),
+        stdoutController = StreamController<List<int>>(),
+        stderrController = StreamController<List<int>>();
 
   @override
   final int pid;
