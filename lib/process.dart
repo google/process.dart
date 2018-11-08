@@ -3,5 +3,5 @@
 // BSD-style license that can be found in the LICENSE file.
 
 export 'src/interface/local_process_manager.dart';
-export 'src/interface/process.dart';
 export 'src/interface/process_manager.dart';
+export 'src/interface/process_wrapper.dart';

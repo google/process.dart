@@ -1,4 +1,8 @@
 
+#### 3.0.7
+
+* Renamed `Process` to `ProcessWrapper`
+
 #### 3.0.6
 
 * Added class `Process`, a simple wrapper around dart:io's `Process` class.

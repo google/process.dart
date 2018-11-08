@@ -12,7 +12,7 @@ void main() {
   group('done', () {
     test('completes only when all done', () async {
       TestProcess delegate = new TestProcess();
-      Process process = new Process(delegate);
+      ProcessWrapper process = new ProcessWrapper(delegate);
       bool done = false;
       // ignore: unawaited_futures
       process.done.then((int result) {
