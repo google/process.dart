@@ -28,7 +28,9 @@ class Process implements io.Process {
     await Future.wait<void>(<Future<void>>[
       delegate.stdout.length,
       delegate.stderr.length,
-      delegate.exitCode.then((int value) { result = value; }),
+      delegate.exitCode.then((int value) {
+        result = value;
+      }),
     ]);
     assert(result != null);
     return result;
