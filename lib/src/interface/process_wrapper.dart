@@ -35,7 +35,7 @@ class ProcessWrapper implements io.Process {
       controller.add,
       onError: controller.addError,
       onDone: () {
-        controller.close;
+        controller.close();
         completer.complete();
       },
     );

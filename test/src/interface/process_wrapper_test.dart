@@ -10,45 +10,75 @@ import 'package:process/process.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('done', () {
+  group('ProcessWrapper', () {
     TestProcess delegate;
     ProcessWrapper process;
-    bool done;
 
     setUp(() {
       delegate = TestProcess();
       process = ProcessWrapper(delegate);
-      done = false;
-      // ignore: unawaited_futures
-      process.done.then((int result) {
-        done = true;
+    });
+
+    group('done', () {
+      bool done;
+
+      setUp(() {
+        done = false;
+        // ignore: unawaited_futures
+        process.done.then((int result) {
+          done = true;
+        });
+      });
+
+      test('completes only when all done', () async {
+        expect(done, isFalse);
+        delegate.exitCodeCompleter.complete(0);
+        await Future<void>.value();
+        expect(done, isFalse);
+        await delegate.stdoutController.close();
+        await Future<void>.value();
+        expect(done, isFalse);
+        await delegate.stderrController.close();
+        await Future<void>.value();
+        expect(done, isTrue);
+        expect(await process.exitCode, 0);
+      });
+
+      test('works in conjunction with subscribers to stdio streams', () async {
+        process.stdout
+            .transform<String>(utf8.decoder)
+            .transform<String>(const LineSplitter())
+            .listen(print);
+        delegate.exitCodeCompleter.complete(0);
+        await delegate.stdoutController.close();
+        await delegate.stderrController.close();
+        await Future<void>.value();
+        expect(done, isTrue);
       });
     });
 
-    test('completes only when all done', () async {
-      expect(done, isFalse);
-      delegate.exitCodeCompleter.complete(0);
-      await Future<void>.value();
-      expect(done, isFalse);
-      await delegate.stdoutController.close();
-      await Future<void>.value();
-      expect(done, isFalse);
-      await delegate.stderrController.close();
-      await Future<void>.value();
-      expect(done, isTrue);
-      expect(await process.exitCode, 0);
-    });
+    group('stdio', () {
+      test('streams properly close', () async {
+        Future<void> testStream(
+          Stream<List<int>> stream,
+          StreamController<List<int>> controller,
+          String name,
+        ) async {
+          bool closed = false;
+          stream.listen(
+            (_) {},
+            onDone: () {
+              closed = true;
+            },
+          );
+          await controller.close();
+          await Future<void>.value();
+          expect(closed, isTrue, reason: 'for $name');
+        }
 
-    test('works in conjunction with subscribers to stdio streams', () async {
-      process.stdout
-          .transform<String>(utf8.decoder)
-          .transform<String>(const LineSplitter())
-          .listen(print);
-      delegate.exitCodeCompleter.complete(0);
-      await delegate.stdoutController.close();
-      await delegate.stderrController.close();
-      await Future<void>.value();
-      expect(done, isTrue);
+        await testStream(process.stdout, delegate.stdoutController, 'stdout');
+        await testStream(process.stderr, delegate.stderrController, 'stderr');
+      });
     });
   });
 }
