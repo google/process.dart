@@ -193,11 +193,16 @@ void main() {
       });
 
       test('when path has spaces', () {
-        expect(sanitizeExecutablePath('Program Files\\bla.exe', platform: platform),
+        expect(
+            sanitizeExecutablePath('Program Files\\bla.exe',
+                platform: platform),
             '"Program Files\\bla.exe"');
-        expect(sanitizeExecutablePath('ProgramFiles\\bla.exe', platform: platform),
+        expect(
+            sanitizeExecutablePath('ProgramFiles\\bla.exe', platform: platform),
             'ProgramFiles\\bla.exe');
-        expect(sanitizeExecutablePath('"Program Files\\bla.exe"', platform: platform),
+        expect(
+            sanitizeExecutablePath('"Program Files\\bla.exe"',
+                platform: platform),
             '"Program Files\\bla.exe"');
       });
     });
@@ -258,7 +263,9 @@ void main() {
       });
 
       test('when path has spaces', () {
-        expect(sanitizeExecutablePath('/usr/local/bin/foo bar', platform: platform),
+        expect(
+            sanitizeExecutablePath('/usr/local/bin/foo bar',
+                platform: platform),
             '/usr/local/bin/foo bar');
       });
     });

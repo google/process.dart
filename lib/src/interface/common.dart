@@ -18,10 +18,8 @@ const Map<String, String> _osToPathStyle = const <String, String>{
 
 /// Sanatizes the executable path on Windows.
 /// https://github.com/dart-lang/sdk/issues/37751
-String sanitizeExecutablePath(
-  String executable, {
-    Platform platform = const LocalPlatform()
-}) {
+String sanitizeExecutablePath(String executable,
+    {Platform platform = const LocalPlatform()}) {
   if (executable.isEmpty) {
     return executable;
   }
