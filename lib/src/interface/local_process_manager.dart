@@ -12,6 +12,8 @@ import 'dart:io'
         ProcessStartMode,
         systemEncoding;
 
+import 'package:platform/platform.dart';
+
 import 'common.dart';
 import 'process_manager.dart';
 
@@ -38,7 +40,11 @@ class LocalProcessManager implements ProcessManager {
     ProcessStartMode mode: ProcessStartMode.normal,
   }) {
     return Process.start(
-      _getExecutable(command, workingDirectory, runInShell),
+      sanitizeExecutablePath(_getExecutable(
+        command,
+        workingDirectory,
+        runInShell,
+      )),
       _getArguments(command),
       workingDirectory: workingDirectory,
       environment: environment,
@@ -59,7 +65,11 @@ class LocalProcessManager implements ProcessManager {
     Encoding stderrEncoding: systemEncoding,
   }) {
     return Process.run(
-      _getExecutable(command, workingDirectory, runInShell),
+      sanitizeExecutablePath(_getExecutable(
+        command,
+        workingDirectory,
+        runInShell,
+      )),
       _getArguments(command),
       workingDirectory: workingDirectory,
       environment: environment,
@@ -81,7 +91,11 @@ class LocalProcessManager implements ProcessManager {
     Encoding stderrEncoding: systemEncoding,
   }) {
     return Process.runSync(
-      _getExecutable(command, workingDirectory, runInShell),
+      sanitizeExecutablePath(_getExecutable(
+        command,
+        workingDirectory,
+        runInShell,
+      )),
       _getArguments(command),
       workingDirectory: workingDirectory,
       environment: environment,
