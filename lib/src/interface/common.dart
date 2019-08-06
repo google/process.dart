@@ -16,6 +16,24 @@ const Map<String, String> _osToPathStyle = const <String, String>{
   'windows': 'windows',
 };
 
+/// Sanatizes the executable path on Windows.
+/// https://github.com/dart-lang/sdk/issues/37751
+String sanitizeExecutablePath(String executable,
+    {Platform platform = const LocalPlatform()}) {
+  if (executable.isEmpty) {
+    return executable;
+  }
+  if (!platform.isWindows) {
+    return executable;
+  }
+  if (executable.contains(' ') && !executable.startsWith('"')) {
+    // Use quoted strings to indicate where the file name ends and the arguments begin;
+    // otherwise, the file name is ambiguous.
+    return '"$executable"';
+  }
+  return executable;
+}
+
 /// Searches the `PATH` for the executable that [command] is supposed to launch.
 ///
 /// This first builds a list of candidate paths where the executable may reside.

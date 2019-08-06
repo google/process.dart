@@ -1,3 +1,7 @@
+#### 3.0.10
+
+* Added quoted strings to indicate where the command name ends and the arguments
+begin otherwise, the file name is ambiguous on Windows.
 
 #### 3.0.9
 
