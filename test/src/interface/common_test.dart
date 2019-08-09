@@ -204,6 +204,14 @@ void main() {
             sanitizeExecutablePath('"Program Files\\bla.exe"',
                 platform: platform),
             '"Program Files\\bla.exe"');
+        expect(
+            sanitizeExecutablePath('\"Program Files\\bla.exe\"',
+                platform: platform),
+            '\"Program Files\\bla.exe\"');
+        expect(
+            sanitizeExecutablePath('C:\\\"Program Files\"\\bla.exe',
+                platform: platform),
+            'C:\\\"Program Files\"\\bla.exe');
       });
     });
 

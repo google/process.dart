@@ -1,3 +1,7 @@
+#### 3.0.11
+
+* Fix bug: don't add quotes if the file name already has quotes.
+
 #### 3.0.10
 
 * Added quoted strings to indicate where the command name ends and the arguments
