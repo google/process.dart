@@ -1,3 +1,7 @@
+#### 3.0.12
+
+* Updated version constraint on intl.
+
 #### 3.0.11
 
 * Fix bug: don't add quotes if the file name already has quotes.
