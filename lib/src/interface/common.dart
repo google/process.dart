@@ -56,7 +56,14 @@ String getExecutablePath(
 }) {
   assert(_osToPathStyle[platform.operatingSystem] == fs.path.style.name);
 
-  workingDirectory ??= fs.currentDirectory.path;
+  try {
+    workingDirectory ??= fs.currentDirectory.path;
+  } on FileSystemException {
+    // The `currentDirectory` getter can throw a FileSystemException for example
+    // when the process doesn't have read/list permissions in each component of
+    // the cwd path. In this case, fall back on '.'.
+    workingDirectory ??= '.';
+  }
   Context context =
       new Context(style: fs.path.style, current: workingDirectory);
 

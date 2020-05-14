@@ -1,3 +1,7 @@
+#### 3.0.13
+
+* Handle `currentDirectory` throwing an exception in `getExecutablePath()`.
+
 #### 3.0.12
 
 * Updated version constraint on intl.
