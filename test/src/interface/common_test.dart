@@ -213,6 +213,34 @@ void main() {
                 platform: platform),
             'C:\\\"Program Files\"\\bla.exe');
       });
+
+      test('with absolute path when currentDirectory getter throws', () {
+        FileSystem fsNoCwd = MemoryFileSystemNoCwd(fs);
+        String command = fs.path.join(dir3.path, 'bla.exe');
+        String expectedPath = command;
+        fs.file(command).createSync();
+
+        String executablePath = getExecutablePath(
+          command,
+          null,
+          platform: platform,
+          fs: fsNoCwd,
+        );
+        _expectSamePath(executablePath, expectedPath);
+      });
+
+      test('with relative path when currentDirectory getter throws', () {
+        FileSystem fsNoCwd = MemoryFileSystemNoCwd(fs);
+        String command = fs.path.join('.', 'bla.exe');
+
+        String executablePath = getExecutablePath(
+          command,
+          null,
+          platform: platform,
+          fs: fsNoCwd,
+        );
+        expect(executablePath, isNull);
+      });
     });
 
     group('on Linux', () {
@@ -283,4 +311,13 @@ void main() {
 void _expectSamePath(String actual, String expected) {
   expect(actual, isNotNull);
   expect(actual.toLowerCase(), expected.toLowerCase());
+}
+
+class MemoryFileSystemNoCwd extends ForwardingFileSystem {
+  MemoryFileSystemNoCwd(FileSystem delegate) : super(delegate);
+
+  @override
+  Directory get currentDirectory {
+    throw FileSystemException('Access denied');
+  }
 }
