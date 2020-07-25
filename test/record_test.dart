@@ -15,7 +15,7 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
-  FileSystem fs = new LocalFileSystem();
+  FileSystem fs = LocalFileSystem();
   // TODO(goderbauer): refactor when github.com/google/platform.dart/issues/1
   //     is available.
   String newline = Platform.isWindows ? '\r\n' : '\n';
@@ -26,7 +26,7 @@ void main() {
 
     setUp(() {
       tmp = fs.systemTempDirectory.createTempSync('process_tests_');
-      manager = new RecordingProcessManager(new LocalProcessManager(), tmp);
+      manager = RecordingProcessManager(LocalProcessManager(), tmp);
     });
 
     tearDown(() {
@@ -47,11 +47,11 @@ void main() {
       // Force the recording to be written to disk.
       await manager.flush(finishRunningProcesses: true);
 
-      _Recording recording = new _Recording(tmp);
+      _Recording recording = _Recording(tmp);
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
       expect(entry['type'], 'run');
-      Map<String, dynamic> body = entry['body'];
+      Map<String, dynamic> body = entry['body'] as Map<String, dynamic>;
       expect(body['pid'], pid);
       expect(body['command'], <String>['echo', 'foo']);
       expect(body['mode'], 'normal');
@@ -65,8 +65,8 @@ void main() {
           await manager.run(<String>['echo', 'bar'], runInShell: true);
       int pid = result.pid;
       int exitCode = result.exitCode;
-      String stdout = result.stdout;
-      String stderr = result.stderr;
+      String stdout = result.stdout as String;
+      String stderr = result.stderr as String;
       expect(exitCode, 0);
       expect(stdout, 'bar$newline');
       expect(stderr, isEmpty);
@@ -74,11 +74,11 @@ void main() {
       // Force the recording to be written to disk.
       await manager.flush(finishRunningProcesses: true);
 
-      _Recording recording = new _Recording(tmp);
+      _Recording recording = _Recording(tmp);
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
       expect(entry['type'], 'run');
-      Map<String, dynamic> body = entry['body'];
+      Map<String, dynamic> body = entry['body'] as Map<String, dynamic>;
       expect(body['pid'], pid);
       expect(body['command'], <String>['echo', 'bar']);
       expect(body['stdoutEncoding'], 'system');
@@ -93,8 +93,8 @@ void main() {
           manager.runSync(<String>['echo', 'baz'], runInShell: true);
       int pid = result.pid;
       int exitCode = result.exitCode;
-      String stdout = result.stdout;
-      String stderr = result.stderr;
+      String stdout = result.stdout as String;
+      String stderr = result.stderr as String;
       expect(exitCode, 0);
       expect(stdout, 'baz$newline');
       expect(stderr, isEmpty);
@@ -102,11 +102,11 @@ void main() {
       // Force the recording to be written to disk.
       await manager.flush(finishRunningProcesses: true);
 
-      _Recording recording = new _Recording(tmp);
+      _Recording recording = _Recording(tmp);
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
       expect(entry['type'], 'run');
-      Map<String, dynamic> body = entry['body'];
+      Map<String, dynamic> body = entry['body'] as Map<String, dynamic>;
       expect(body['pid'], pid);
       expect(body['command'], <String>['echo', 'baz']);
       expect(body['stdoutEncoding'], 'system');
@@ -125,11 +125,11 @@ void main() {
       // Force the recording to be written to disk.
       await manager.flush(finishRunningProcesses: true);
 
-      _Recording recording = new _Recording(tmp);
+      _Recording recording = _Recording(tmp);
       expect(recording.manifest, hasLength(1));
       Map<String, dynamic> entry = recording.manifest.first;
       expect(entry['type'], 'can_run');
-      Map<String, dynamic> body = entry['body'];
+      Map<String, dynamic> body = entry['body'] as Map<String, dynamic>;
       expect(body['executable'], executable);
       expect(body['result'], result);
     });
@@ -138,21 +138,21 @@ void main() {
 
 /// A testing utility class that encapsulates a recording.
 class _Recording {
+  _Recording(this.dir);
   final Directory dir;
 
-  _Recording(this.dir);
-
   List<Map<String, dynamic>> get manifest {
-    return json.decoder
-        .convert(_getFileContent('MANIFEST.txt', utf8))
+    return (json.decoder
+                .convert(_getFileContent('MANIFEST.txt', utf8) as String)
+            as List<dynamic>)
         .cast<Map<String, dynamic>>();
   }
 
-  dynamic stdoutForEntryAt(int index) =>
-      _getStdioContent(manifest[index]['body'], 'stdout');
+  dynamic stdoutForEntryAt(int index) => _getStdioContent(
+      manifest[index]['body'] as Map<String, dynamic>, 'stdout');
 
-  dynamic stderrForEntryAt(int index) =>
-      _getStdioContent(manifest[index]['body'], 'stderr');
+  dynamic stderrForEntryAt(int index) => _getStdioContent(
+      manifest[index]['body'] as Map<String, dynamic>, 'stderr');
 
   dynamic _getFileContent(String name, Encoding encoding) {
     File file = dir.fileSystem.file('${dir.path}/$name');
@@ -162,8 +162,8 @@ class _Recording {
   }
 
   dynamic _getStdioContent(Map<String, dynamic> entry, String type) {
-    String basename = entry['basename'];
-    String encodingName = entry['${type}Encoding'];
+    String basename = entry['basename'] as String;
+    String encodingName = entry['${type}Encoding'] as String;
     Encoding encoding;
     if (encodingName != null)
       encoding = encodingName == 'system'

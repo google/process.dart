@@ -42,5 +42,5 @@ class JsonBuilder {
 /// Throws a [FormatException] if [data] does not contain [key].
 void checkRequiredField(Map<String, dynamic> data, String key) {
   if (!data.containsKey(key))
-    throw new FormatException('Required field missing: $key');
+    throw FormatException('Required field missing: $key');
 }

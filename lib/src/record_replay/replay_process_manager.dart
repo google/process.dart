@@ -31,6 +31,8 @@ import 'recording_process_manager.dart';
 /// Recordings exist as opaque directories that are produced by
 /// [RecordingProcessManager].
 class ReplayProcessManager implements ProcessManager {
+  ReplayProcessManager._(this._manifest, this.location, this.streamDelay);
+
   final Manifest _manifest;
 
   /// The location of the serialized recording that's driving this manager.
@@ -40,8 +42,6 @@ class ReplayProcessManager implements ProcessManager {
   /// `stdout` and `stderr` stream production by the this amount. See
   /// description of the associated parameter in [create].
   final Duration streamDelay;
-
-  ReplayProcessManager._(this._manifest, this.location, this.streamDelay);
 
   /// Creates a new `ReplayProcessManager` capable of replaying a recording that
   /// was serialized to the specified [location] by [RecordingProcessManager].
@@ -61,18 +61,18 @@ class ReplayProcessManager implements ProcessManager {
   /// start listening.
   static Future<ReplayProcessManager> create(
     Directory location, {
-    Duration streamDelay: Duration.zero,
+    Duration streamDelay = Duration.zero,
   }) async {
     assert(streamDelay != null);
 
     if (!location.existsSync()) {
-      throw new ArgumentError.value(location.path, 'location', "Doesn't exist");
+      throw ArgumentError.value(location.path, 'location', "Doesn't exist");
     }
 
     FileSystem fs = location.fileSystem;
     File manifestFile = fs.file(path.join(location.path, kManifestName));
     if (!manifestFile.existsSync()) {
-      throw new ArgumentError.value(
+      throw ArgumentError.value(
           location, 'location', 'Does not represent a valid recording');
     }
 
@@ -80,10 +80,10 @@ class ReplayProcessManager implements ProcessManager {
     try {
       // We don't validate the existence of all stdout and stderr files
       // referenced in the manifest.
-      Manifest manifest = new Manifest.fromJson(content);
-      return new ReplayProcessManager._(manifest, location, streamDelay);
+      Manifest manifest = Manifest.fromJson(content);
+      return ReplayProcessManager._(manifest, location, streamDelay);
     } on FormatException catch (e) {
-      throw new ArgumentError('$kManifestName is not a valid JSON file: $e');
+      throw ArgumentError('$kManifestName is not a valid JSON file: $e');
     }
   }
 
@@ -92,9 +92,9 @@ class ReplayProcessManager implements ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    io.ProcessStartMode mode: io.ProcessStartMode.normal,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    io.ProcessStartMode mode = io.ProcessStartMode.normal,
   }) async {
     RunManifestEntry entry = _popRunEntry(command, mode: mode);
     _ReplayResult result = await _ReplayResult.create(this, entry);
@@ -106,10 +106,10 @@ class ReplayProcessManager implements ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    Encoding stdoutEncoding: io.systemEncoding,
-    Encoding stderrEncoding: io.systemEncoding,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    Encoding stdoutEncoding = io.systemEncoding,
+    Encoding stderrEncoding = io.systemEncoding,
   }) async {
     RunManifestEntry entry = _popRunEntry(command,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
@@ -121,10 +121,10 @@ class ReplayProcessManager implements ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    Encoding stdoutEncoding: io.systemEncoding,
-    Encoding stderrEncoding: io.systemEncoding,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    Encoding stdoutEncoding = io.systemEncoding,
+    Encoding stderrEncoding = io.systemEncoding,
   }) {
     RunManifestEntry entry = _popRunEntry(command,
         stdoutEncoding: stdoutEncoding, stderrEncoding: stderrEncoding);
@@ -146,10 +146,10 @@ class ReplayProcessManager implements ProcessManager {
       mode: mode,
       stdoutEncoding: stdoutEncoding,
       stderrEncoding: stderrEncoding,
-    );
+    ) as RunManifestEntry;
 
     if (entry == null) {
-      throw new io.ProcessException(sanitizedCommand.first,
+      throw io.ProcessException(sanitizedCommand.first,
           sanitizedCommand.skip(1).toList(), 'No matching invocation found');
     }
 
@@ -161,9 +161,9 @@ class ReplayProcessManager implements ProcessManager {
   bool canRun(dynamic executable, {String workingDirectory}) {
     CanRunManifestEntry entry = _manifest.findPendingCanRunEntry(
       executable: executable.toString(),
-    );
+    ) as CanRunManifestEntry;
     if (entry == null) {
-      throw new ArgumentError('No matching invocation found for $executable');
+      throw ArgumentError('No matching invocation found for $executable');
     }
     entry.setInvoked();
     return entry.result;
@@ -171,16 +171,24 @@ class ReplayProcessManager implements ProcessManager {
 
   @override
   bool killPid(int pid, [io.ProcessSignal signal = io.ProcessSignal.sigterm]) {
-    throw new UnsupportedError(
+    throw UnsupportedError(
         "$runtimeType.killPid() has not been implemented because at the time "
         "of its writing, it wasn't needed. If you're hitting this error, you "
         "should implement it.");
   }
 }
 
-/// A [ProcessResult] implementation that derives its data from a recording
+/// A [io.ProcessResult] implementation that derives its data from a recording
 /// fragment.
 class _ReplayResult implements io.ProcessResult {
+  _ReplayResult._({
+    this.manager,
+    this.pid,
+    this.exitCode,
+    this.stdout,
+    this.stderr,
+  });
+
   final ReplayProcessManager manager;
 
   @override
@@ -195,14 +203,6 @@ class _ReplayResult implements io.ProcessResult {
   @override
   final dynamic stderr;
 
-  _ReplayResult._({
-    this.manager,
-    this.pid,
-    this.exitCode,
-    this.stdout,
-    this.stderr,
-  });
-
   static Future<_ReplayResult> create(
     ReplayProcessManager manager,
     RunManifestEntry entry,
@@ -210,7 +210,7 @@ class _ReplayResult implements io.ProcessResult {
     FileSystem fs = manager.location.fileSystem;
     String basePath = path.join(manager.location.path, entry.basename);
     try {
-      return new _ReplayResult._(
+      return _ReplayResult._(
         manager: manager,
         pid: entry.pid,
         exitCode: entry.exitCode,
@@ -218,7 +218,7 @@ class _ReplayResult implements io.ProcessResult {
         stderr: await _getData(fs, '$basePath.stderr', entry.stderrEncoding),
       );
     } catch (e) {
-      throw new io.ProcessException(
+      throw io.ProcessException(
           entry.executable, entry.arguments, e.toString());
     }
   }
@@ -238,7 +238,7 @@ class _ReplayResult implements io.ProcessResult {
     FileSystem fs = manager.location.fileSystem;
     String basePath = path.join(manager.location.path, entry.basename);
     try {
-      return new _ReplayResult._(
+      return _ReplayResult._(
         manager: manager,
         pid: entry.pid,
         exitCode: entry.exitCode,
@@ -246,7 +246,7 @@ class _ReplayResult implements io.ProcessResult {
         stderr: _getDataSync(fs, '$basePath.stderr', entry.stderrEncoding),
       );
     } catch (e) {
-      throw new io.ProcessException(
+      throw io.ProcessException(
           entry.executable, entry.arguments, e.toString());
     }
   }
@@ -261,33 +261,23 @@ class _ReplayResult implements io.ProcessResult {
   io.Process asProcess(bool daemon) {
     assert(stdout is List<int>);
     assert(stderr is List<int>);
-    return new _ReplayProcess(this, daemon);
+    return _ReplayProcess(this, daemon);
   }
 }
 
-/// A [Process] implementation derives its data from a recording fragment.
+/// A [io.Process] implementation derives its data from a recording fragment.
 class _ReplayProcess implements io.Process {
-  @override
-  final int pid;
-
-  final List<int> _stdout;
-  final List<int> _stderr;
-  final StreamController<List<int>> _stdoutController;
-  final StreamController<List<int>> _stderrController;
-  final int _exitCode;
-  final Completer<int> _exitCodeCompleter;
-
   _ReplayProcess(_ReplayResult result, bool daemon)
       : pid = result.pid,
-        _stdout = result.stdout,
-        _stderr = result.stderr,
-        _stdoutController = new StreamController<List<int>>(),
-        _stderrController = new StreamController<List<int>>(),
+        _stdout = result.stdout as List<int>,
+        _stderr = result.stderr as List<int>,
+        _stdoutController = StreamController<List<int>>(),
+        _stderrController = StreamController<List<int>>(),
         _exitCode = result.exitCode,
-        _exitCodeCompleter = new Completer<int>() {
+        _exitCodeCompleter = Completer<int>() {
     // Don't flush our stdio streams until we at least reach the outer event
     // loop. i.e. even if `streamDelay` is zero, we still want to use the timer.
-    new Timer(result.manager.streamDelay, () {
+    Timer(result.manager.streamDelay, () {
       if (!_stdoutController.isClosed) {
         _stdoutController.add(_stdout);
       }
@@ -299,6 +289,16 @@ class _ReplayProcess implements io.Process {
   }
 
   @override
+  final int pid;
+
+  final List<int> _stdout;
+  final List<int> _stderr;
+  final StreamController<List<int>> _stdoutController;
+  final StreamController<List<int>> _stderrController;
+  final int _exitCode;
+  final Completer<int> _exitCodeCompleter;
+
+  @override
   Stream<List<int>> get stdout => _stdoutController.stream;
 
   @override
@@ -308,7 +308,7 @@ class _ReplayProcess implements io.Process {
   Future<int> get exitCode => _exitCodeCompleter.future;
 
   @override
-  io.IOSink get stdin => throw new UnimplementedError();
+  io.IOSink get stdin => throw UnimplementedError();
 
   @override
   bool kill([io.ProcessSignal signal = io.ProcessSignal.sigterm]) {

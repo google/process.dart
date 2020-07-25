@@ -36,8 +36,6 @@ bool _isHit<T>(
 /// The process invocation manifest, holding metadata about every recorded
 /// process invocation.
 class Manifest {
-  final List<ManifestEntry> _entries = <ManifestEntry>[];
-
   /// Creates a new manifest.
   Manifest();
 
@@ -47,24 +45,27 @@ class Manifest {
   /// [toJson]), a [FormatException] will be thrown.
   factory Manifest.fromJson(String json) {
     List<Map<String, dynamic>> decoded =
-        new JsonDecoder().convert(json).cast<Map<String, dynamic>>();
-    Manifest manifest = new Manifest();
+        (JsonDecoder().convert(json) as List<dynamic>)
+            .cast<Map<String, dynamic>>();
+    Manifest manifest = Manifest();
     decoded.forEach((Map<String, dynamic> entry) {
-      switch (entry['type']) {
+      switch (entry['type'] as String) {
         case 'run':
-          manifest._entries.add(new RunManifestEntry.fromJson(entry['body']));
+          manifest._entries.add(
+              RunManifestEntry.fromJson(entry['body'] as Map<String, dynamic>));
           break;
         case 'can_run':
-          manifest._entries
-              .add(new CanRunManifestEntry.fromJson(entry['body']));
+          manifest._entries.add(CanRunManifestEntry.fromJson(
+              entry['body'] as Map<String, dynamic>));
           break;
         default:
-          throw new UnsupportedError(
-              'Manifest type ${entry['type']} is unkown.');
+          throw UnsupportedError('Manifest type ${entry['type']} is unkown.');
       }
     });
     return manifest;
   }
+
+  final List<ManifestEntry> _entries = <ManifestEntry>[];
 
   /// Adds the specified [entry] to this manifest.
   void add(ManifestEntry entry) => _entries.add(entry);
@@ -119,7 +120,7 @@ class Manifest {
   /// Returns a JSON-encoded representation of this manifest.
   String toJson() {
     List<Map<String, dynamic>> list = <Map<String, dynamic>>[];
-    _entries.forEach((ManifestEntry entry) => list.add(new JsonBuilder()
+    _entries.forEach((ManifestEntry entry) => list.add(JsonBuilder()
         .add('type', entry.type)
         .add('body', entry.toJson())
         .entry));

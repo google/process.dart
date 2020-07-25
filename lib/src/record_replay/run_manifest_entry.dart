@@ -15,7 +15,7 @@ ProcessStartMode _getProcessStartMode(String value) {
         return mode;
       }
     }
-    throw new FormatException('Invalid value for mode: $value');
+    throw FormatException('Invalid value for mode: $value');
   }
   return null;
 }
@@ -32,6 +32,48 @@ Encoding _getEncoding(String encoding) {
 
 /// An entry in the process invocation manifest for running an executable.
 class RunManifestEntry extends ManifestEntry {
+  /// Creates a new manifest entry with the given properties.
+  RunManifestEntry({
+    this.pid,
+    this.basename,
+    this.command,
+    this.workingDirectory,
+    this.environment,
+    this.includeParentEnvironment,
+    this.runInShell,
+    this.mode,
+    this.stdoutEncoding,
+    this.stderrEncoding,
+    this.exitCode,
+  });
+
+  /// Creates a new manifest entry populated with the specified JSON [data].
+  ///
+  /// If any required fields are missing from the JSON data, this will throw
+  /// a [FormatException].
+  factory RunManifestEntry.fromJson(Map<String, dynamic> data) {
+    checkRequiredField(data, 'pid');
+    checkRequiredField(data, 'basename');
+    checkRequiredField(data, 'command');
+    RunManifestEntry entry = RunManifestEntry(
+      pid: data['pid'] as int,
+      basename: data['basename'] as String,
+      command: (data['command'] as List<dynamic>)?.cast<String>(),
+      workingDirectory: data['workingDirectory'] as String,
+      environment: (data['environment'] as Map<dynamic, dynamic>)
+          ?.cast<String, String>(),
+      includeParentEnvironment: data['includeParentEnvironment'] as bool,
+      runInShell: data['runInShell'] as bool,
+      mode: _getProcessStartMode(data['mode'] as String),
+      stdoutEncoding: _getEncoding(data['stdoutEncoding'] as String),
+      stderrEncoding: _getEncoding(data['stderrEncoding'] as String),
+      exitCode: data['exitCode'] as int,
+    );
+    entry.daemon = data['daemon'] as bool;
+    entry.notResponding = data['notResponding'] as bool;
+    return entry;
+  }
+
   @override
   final String type = 'run';
 
@@ -71,47 +113,6 @@ class RunManifestEntry extends ManifestEntry {
   /// The exit code of the process.
   int exitCode;
 
-  /// Creates a new manifest entry with the given properties.
-  RunManifestEntry({
-    this.pid,
-    this.basename,
-    this.command,
-    this.workingDirectory,
-    this.environment,
-    this.includeParentEnvironment,
-    this.runInShell,
-    this.mode,
-    this.stdoutEncoding,
-    this.stderrEncoding,
-    this.exitCode,
-  });
-
-  /// Creates a new manifest entry populated with the specified JSON [data].
-  ///
-  /// If any required fields are missing from the JSON data, this will throw
-  /// a [FormatException].
-  factory RunManifestEntry.fromJson(Map<String, dynamic> data) {
-    checkRequiredField(data, 'pid');
-    checkRequiredField(data, 'basename');
-    checkRequiredField(data, 'command');
-    RunManifestEntry entry = new RunManifestEntry(
-      pid: data['pid'],
-      basename: data['basename'],
-      command: data['command']?.cast<String>(),
-      workingDirectory: data['workingDirectory'],
-      environment: data['environment'],
-      includeParentEnvironment: data['includeParentEnvironment'],
-      runInShell: data['runInShell'],
-      mode: _getProcessStartMode(data['mode']),
-      stdoutEncoding: _getEncoding(data['stdoutEncoding']),
-      stderrEncoding: _getEncoding(data['stderrEncoding']),
-      exitCode: data['exitCode'],
-    );
-    entry.daemon = data['daemon'];
-    entry.notResponding = data['notResponding'];
-    return entry;
-  }
-
   /// The executable that was invoked.
   String get executable => command.first;
 
@@ -130,7 +131,7 @@ class RunManifestEntry extends ManifestEntry {
 
   /// Returns a JSON-encodable representation of this manifest entry.
   @override
-  Map<String, dynamic> toJson() => new JsonBuilder()
+  Map<String, dynamic> toJson() => JsonBuilder()
       .add('pid', pid)
       .add('basename', basename)
       .add('command', command)
