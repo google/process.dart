@@ -53,7 +53,6 @@ String getExecutablePath(
   String workingDirectory, {
   Platform platform = const LocalPlatform(),
   FileSystem fs = const LocalFileSystem(),
-  bool windows = false,
 }) {
   assert(_osToPathStyle[platform.operatingSystem] == fs.path.style.name);
 
