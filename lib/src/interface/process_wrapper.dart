@@ -10,10 +10,10 @@ class ProcessWrapper implements io.Process {
   /// Constructs a [ProcessWrapper] object that delegates to the specified
   /// underlying object.
   ProcessWrapper(this._delegate)
-      : _stdout = new StreamController<List<int>>(),
-        _stderr = new StreamController<List<int>>(),
-        _stdoutDone = new Completer<void>(),
-        _stderrDone = new Completer<void>() {
+      : _stdout = StreamController<List<int>>(),
+        _stderr = StreamController<List<int>>(),
+        _stdoutDone = Completer<void>(),
+        _stderrDone = Completer<void>() {
     _monitorStdioStream(_delegate.stdout, _stdout, _stdoutDone);
     _monitorStdioStream(_delegate.stderr, _stderr, _stderrDone);
   }

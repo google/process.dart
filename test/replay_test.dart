@@ -13,7 +13,7 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
-  FileSystem fs = new LocalFileSystem();
+  FileSystem fs = LocalFileSystem();
 
   group('ReplayProcessManager', () {
     ProcessManager manager;

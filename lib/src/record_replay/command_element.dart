@@ -6,7 +6,7 @@ import 'package:process/process.dart';
 
 /// Callback used to [sanitize](CommandElement.sanitized) a [CommandElement]
 /// for the purpose of recording.
-typedef String CommandSanitizer(String rawValue);
+typedef CommandSanitizer = String Function(String rawValue);
 
 /// A command element capable of holding both a raw and sanitized value.
 ///
@@ -29,8 +29,6 @@ typedef String CommandSanitizer(String rawValue);
 /// instances of this class can be passed directly to [LocalProcessManager]
 /// and will work as intended.
 class CommandElement {
-  final CommandSanitizer _sanitizer;
-
   /// Creates a new command element with the specified [raw] value.
   ///
   /// If a [sanitizer] is specified, it will be used to generate this command
@@ -38,6 +36,8 @@ class CommandElement {
   /// used as the sanitized value.
   CommandElement(this.raw, {CommandSanitizer sanitizer})
       : _sanitizer = sanitizer;
+
+  final CommandSanitizer _sanitizer;
 
   /// This command element's raw, unsanitized, value.
   ///

@@ -7,7 +7,7 @@ import 'package:file/local.dart';
 import 'package:path/path.dart' show Context;
 import 'package:platform/platform.dart';
 
-const Map<String, String> _osToPathStyle = const <String, String>{
+const Map<String, String> _osToPathStyle = <String, String>{
   'linux': 'posix',
   'macos': 'posix',
   'android': 'posix',
@@ -51,8 +51,8 @@ String sanitizeExecutablePath(String executable,
 String getExecutablePath(
   String command,
   String workingDirectory, {
-  Platform platform: const LocalPlatform(),
-  FileSystem fs: const LocalFileSystem(),
+  Platform platform = const LocalPlatform(),
+  FileSystem fs = const LocalFileSystem(),
 }) {
   assert(_osToPathStyle[platform.operatingSystem] == fs.path.style.name);
 
@@ -64,8 +64,7 @@ String getExecutablePath(
     // the cwd path. In this case, fall back on '.'.
     workingDirectory ??= '.';
   }
-  Context context =
-      new Context(style: fs.path.style, current: workingDirectory);
+  Context context = Context(style: fs.path.style, current: workingDirectory);
 
   // TODO(goderbauer): refactor when github.com/google/platform.dart/issues/2
   //     is available.
@@ -95,7 +94,7 @@ String getExecutablePath(
 /// `$searchPath\$command`.
 /// If [command] is an absolute path, it will just enumerate
 /// `$command.$ext`.
-Iterable<String> _getCandidatePaths(
+List<String> _getCandidatePaths(
   String command,
   List<String> searchPaths,
   List<String> extensions,

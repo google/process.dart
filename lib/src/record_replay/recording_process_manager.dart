@@ -14,7 +14,6 @@ import 'dart:io' as io
         systemEncoding;
 
 import 'package:file/file.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 
 import '../interface/process_manager.dart';
@@ -40,23 +39,6 @@ import 'run_manifest_entry.dart';
 ///
 /// * [ReplayProcessManager].
 class RecordingProcessManager implements ProcessManager {
-  static const List<String> _kSkippableExecutables = const <String>[
-    'env',
-    'xcrun',
-  ];
-
-  /// The manager to which this manager delegates.
-  final ProcessManager delegate;
-
-  /// The directory to which serialized invocation metadata will be written.
-  final Directory destination;
-
-  /// List of invocation metadata. Will be serialized as [kManifestName].
-  final Manifest _manifest = new Manifest();
-
-  /// Maps process IDs of running processes to exit code futures.
-  final Map<int, Future<int>> _runningProcesses = <int, Future<int>>{};
-
   /// Constructs a new `RecordingProcessManager`.
   ///
   /// This manager will record all process invocations and serialize them to
@@ -71,9 +53,26 @@ class RecordingProcessManager implements ProcessManager {
   /// between versions of `package:process`.
   RecordingProcessManager(this.delegate, this.destination) {
     if (!destination.existsSync() || destination.listSync().isNotEmpty) {
-      throw new StateError('Cannot record to ${destination.path}');
+      throw StateError('Cannot record to ${destination.path}');
     }
   }
+
+  static const List<String> _kSkippableExecutables = <String>[
+    'env',
+    'xcrun',
+  ];
+
+  /// The manager to which this manager delegates.
+  final ProcessManager delegate;
+
+  /// The directory to which serialized invocation metadata will be written.
+  final Directory destination;
+
+  /// List of invocation metadata. Will be serialized as [kManifestName].
+  final Manifest _manifest = Manifest();
+
+  /// Maps process IDs of running processes to exit code futures.
+  final Map<int, Future<int>> _runningProcesses = <int, Future<int>>{};
 
   /// The file system in which this manager will create recording files.
   FileSystem get fs => destination.fileSystem;
@@ -83,9 +82,9 @@ class RecordingProcessManager implements ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    io.ProcessStartMode mode: io.ProcessStartMode.normal,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    io.ProcessStartMode mode = io.ProcessStartMode.normal,
   }) async {
     io.Process process = await delegate.start(
       command,
@@ -98,7 +97,7 @@ class RecordingProcessManager implements ProcessManager {
 
     List<String> sanitizedCommand = sanitize(command);
     String basename = _getBasename(process.pid, sanitizedCommand);
-    RunManifestEntry entry = new RunManifestEntry(
+    RunManifestEntry entry = RunManifestEntry(
       pid: process.pid,
       basename: basename,
       command: sanitizedCommand,
@@ -110,7 +109,7 @@ class RecordingProcessManager implements ProcessManager {
     );
     _manifest.add(entry);
 
-    _RecordingProcess result = new _RecordingProcess(
+    _RecordingProcess result = _RecordingProcess(
       manager: this,
       basename: basename,
       delegate: process,
@@ -130,10 +129,10 @@ class RecordingProcessManager implements ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    Encoding stdoutEncoding: io.systemEncoding,
-    Encoding stderrEncoding: io.systemEncoding,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    Encoding stdoutEncoding = io.systemEncoding,
+    Encoding stderrEncoding = io.systemEncoding,
   }) async {
     io.ProcessResult result = await delegate.run(
       command,
@@ -147,7 +146,7 @@ class RecordingProcessManager implements ProcessManager {
 
     List<String> sanitizedCommand = sanitize(command);
     String basename = _getBasename(result.pid, sanitizedCommand);
-    _manifest.add(new RunManifestEntry(
+    _manifest.add(RunManifestEntry(
       pid: result.pid,
       basename: basename,
       command: sanitizedCommand,
@@ -172,7 +171,7 @@ class RecordingProcessManager implements ProcessManager {
     IOSink recording = file.openWrite(encoding: encoding);
     try {
       if (encoding == null)
-        recording.add(data);
+        recording.add(data as List<int>);
       else
         recording.write(data);
       await recording.flush();
@@ -186,10 +185,10 @@ class RecordingProcessManager implements ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    Encoding stdoutEncoding: io.systemEncoding,
-    Encoding stderrEncoding: io.systemEncoding,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    Encoding stdoutEncoding = io.systemEncoding,
+    Encoding stderrEncoding = io.systemEncoding,
   }) {
     io.ProcessResult result = delegate.runSync(
       command,
@@ -203,7 +202,7 @@ class RecordingProcessManager implements ProcessManager {
 
     List<String> sanitizedCommand = sanitize(command);
     String basename = _getBasename(result.pid, sanitizedCommand);
-    _manifest.add(new RunManifestEntry(
+    _manifest.add(RunManifestEntry(
       pid: result.pid,
       basename: basename,
       command: sanitizedCommand,
@@ -225,17 +224,17 @@ class RecordingProcessManager implements ProcessManager {
   void _recordDataSync(dynamic data, Encoding encoding, String basename) {
     File file = fs.file('${destination.path}/$basename');
     if (encoding == null)
-      file.writeAsBytesSync(data, flush: true);
+      file.writeAsBytesSync(data as List<int>, flush: true);
     else
-      file.writeAsStringSync(data, encoding: encoding, flush: true);
+      file.writeAsStringSync(data as String, encoding: encoding, flush: true);
   }
 
   @override
   bool canRun(dynamic executable, {String workingDirectory}) {
     bool result =
         delegate.canRun(executable, workingDirectory: workingDirectory);
-    _manifest.add(new CanRunManifestEntry(
-        executable: executable.toString(), result: result));
+    _manifest.add(
+        CanRunManifestEntry(executable: executable.toString(), result: result));
     return result;
   }
 
@@ -246,7 +245,7 @@ class RecordingProcessManager implements ProcessManager {
 
   /// Returns a human-readable identifier for the specified executable.
   String _getBasename(int pid, List<String> sanitizedCommand) {
-    String index = new NumberFormat('000').format(_manifest.length);
+    String index = _manifest.length.toString();
     String identifier = 'executable';
     for (String element in sanitizedCommand) {
       if (element.startsWith('-')) {
@@ -283,8 +282,8 @@ class RecordingProcessManager implements ProcessManager {
   /// If [finishRunningProcesses] is false (the default), then [timeout] is
   /// ignored.
   Future<Null> flush({
-    bool finishRunningProcesses: false,
-    Duration timeout: const Duration(milliseconds: 20),
+    bool finishRunningProcesses = false,
+    Duration timeout = const Duration(milliseconds: 20),
   }) async {
     if (finishRunningProcesses) {
       await _waitForRunningProcessesToExit(timeout);
@@ -317,8 +316,9 @@ class RecordingProcessManager implements ProcessManager {
     Duration timeout,
     void onTimeout(RunManifestEntry entry),
   }) async {
-    void callOnTimeout(int pid) => onTimeout(_manifest.getRunEntry(pid));
-    await Future.wait(new List<Future<int>>.from(_runningProcesses.values))
+    void callOnTimeout(int pid) =>
+        onTimeout(_manifest.getRunEntry(pid) as RunManifestEntry);
+    await Future.wait(List<Future<int>>.from(_runningProcesses.values))
         .timeout(timeout, onTimeout: () {
       _runningProcesses.keys.forEach(callOnTimeout);
       return null;
@@ -332,21 +332,21 @@ class RecordingProcessManager implements ProcessManager {
   }
 }
 
-/// A [Process] implementation that records `stdout` and `stderr` stream events
+/// A [io.Process] implementation that records `stdout` and `stderr` stream events
 /// to disk before forwarding them on to the underlying stream listener.
 class _RecordingProcess implements io.Process {
+  _RecordingProcess({this.manager, this.basename, this.delegate});
+
   final io.Process delegate;
   final String basename;
   final RecordingProcessManager manager;
 
   // ignore: close_sinks
-  final StreamController<List<int>> _stdout = new StreamController<List<int>>();
+  final StreamController<List<int>> _stdout = StreamController<List<int>>();
   // ignore: close_sinks
-  final StreamController<List<int>> _stderr = new StreamController<List<int>>();
+  final StreamController<List<int>> _stderr = StreamController<List<int>>();
 
   bool _started = false;
-
-  _RecordingProcess({this.manager, this.basename, this.delegate});
 
   Future<Null> startRecording() async {
     assert(!_started);

@@ -1,3 +1,8 @@
+#### 4.0.0-dev
+
+* Remove implicit casts in preparation for null-safety
+* Remove dependency on `package:intl`
+
 #### 3.0.13
 
 * Handle `currentDirectory` throwing an exception in `getExecutablePath()`.

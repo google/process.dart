@@ -12,8 +12,6 @@ import 'dart:io'
         ProcessStartMode,
         systemEncoding;
 
-import 'package:platform/platform.dart';
-
 import 'common.dart';
 import 'process_manager.dart';
 
@@ -35,9 +33,9 @@ class LocalProcessManager implements ProcessManager {
     covariant List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    ProcessStartMode mode: ProcessStartMode.normal,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    ProcessStartMode mode = ProcessStartMode.normal,
   }) {
     return Process.start(
       sanitizeExecutablePath(_getExecutable(
@@ -59,10 +57,10 @@ class LocalProcessManager implements ProcessManager {
     covariant List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    Encoding stdoutEncoding: systemEncoding,
-    Encoding stderrEncoding: systemEncoding,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    Encoding stdoutEncoding = systemEncoding,
+    Encoding stderrEncoding = systemEncoding,
   }) {
     return Process.run(
       sanitizeExecutablePath(_getExecutable(
@@ -85,10 +83,10 @@ class LocalProcessManager implements ProcessManager {
     covariant List<Object> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    Encoding stdoutEncoding: systemEncoding,
-    Encoding stderrEncoding: systemEncoding,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    Encoding stdoutEncoding = systemEncoding,
+    Encoding stderrEncoding = systemEncoding,
   }) {
     return Process.runSync(
       sanitizeExecutablePath(_getExecutable(
@@ -107,7 +105,7 @@ class LocalProcessManager implements ProcessManager {
   }
 
   @override
-  bool canRun(covariant Object executable, {String workingDirectory}) =>
+  bool canRun(covariant String executable, {String workingDirectory}) =>
       getExecutablePath(executable, workingDirectory) != null;
 
   @override
@@ -124,7 +122,7 @@ String _getExecutable(
   }
   String exe = getExecutablePath(commandName, workingDirectory);
   if (exe == null) {
-    throw new ArgumentError('Cannot find executable for $commandName.');
+    throw ArgumentError('Cannot find executable for $commandName.');
   }
   return exe;
 }

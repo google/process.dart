@@ -15,7 +15,7 @@ void main() {
 
     void initialize(FileSystemStyle style) {
       setUp(() {
-        fs = new MemoryFileSystem(style: style);
+        fs = MemoryFileSystem(style: style);
         workingDir = fs.systemTempDirectory.createTempSync('work_dir_');
         dir1 = fs.systemTempDirectory.createTempSync('dir1_');
         dir2 = fs.systemTempDirectory.createTempSync('dir2_');
@@ -34,7 +34,7 @@ void main() {
       initialize(FileSystemStyle.windows);
 
       setUp(() {
-        platform = new FakePlatform(
+        platform = FakePlatform(
           operatingSystem: 'windows',
           environment: <String, String>{
             'PATH': '${dir1.path};${dir2.path}',
@@ -249,7 +249,7 @@ void main() {
       initialize(FileSystemStyle.posix);
 
       setUp(() {
-        platform = new FakePlatform(
+        platform = FakePlatform(
             operatingSystem: 'linux',
             environment: <String, String>{'PATH': '${dir1.path}:${dir2.path}'});
       });

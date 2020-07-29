@@ -87,9 +87,9 @@ abstract class ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    ProcessStartMode mode: ProcessStartMode.normal,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    ProcessStartMode mode = ProcessStartMode.normal,
   });
 
   /// Starts a process and runs it non-interactively to completion.
@@ -140,10 +140,10 @@ abstract class ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    Encoding stdoutEncoding: systemEncoding,
-    Encoding stderrEncoding: systemEncoding,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    Encoding stdoutEncoding = systemEncoding,
+    Encoding stderrEncoding = systemEncoding,
   });
 
   /// Starts a process and runs it to completion. This is a synchronous
@@ -157,10 +157,10 @@ abstract class ProcessManager {
     List<dynamic> command, {
     String workingDirectory,
     Map<String, String> environment,
-    bool includeParentEnvironment: true,
-    bool runInShell: false,
-    Encoding stdoutEncoding: systemEncoding,
-    Encoding stderrEncoding: systemEncoding,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    Encoding stdoutEncoding = systemEncoding,
+    Encoding stderrEncoding = systemEncoding,
   });
 
   /// Returns `true` if the [executable] exists and if it can be executed.
