@@ -5,7 +5,6 @@ homepage: https://github.com/google/process.dart
 
 dependencies:
   file: '^5.0.0'
-  meta: ^1.1.2
   path: ^1.5.1
   platform: '>=1.0.1'
 
@@ -13,4 +12,4 @@ dev_dependencies:
   test: ^1.0.0
 
 environment:
-  sdk: '>=2.0.0 <3.0.0'
+  sdk: '>=2.9.0 <3.0.0'

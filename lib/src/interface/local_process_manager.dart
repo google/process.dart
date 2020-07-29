@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+// @dart=2.10
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io'
@@ -31,8 +32,8 @@ class LocalProcessManager implements ProcessManager {
   @override
   Future<Process> start(
     covariant List<Object> command, {
-    String workingDirectory,
-    Map<String, String> environment,
+    String? workingDirectory,
+    Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
     ProcessStartMode mode = ProcessStartMode.normal,
@@ -55,8 +56,8 @@ class LocalProcessManager implements ProcessManager {
   @override
   Future<ProcessResult> run(
     covariant List<Object> command, {
-    String workingDirectory,
-    Map<String, String> environment,
+    String? workingDirectory,
+    Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
     Encoding stdoutEncoding = systemEncoding,
@@ -81,8 +82,8 @@ class LocalProcessManager implements ProcessManager {
   @override
   ProcessResult runSync(
     covariant List<Object> command, {
-    String workingDirectory,
-    Map<String, String> environment,
+    String? workingDirectory,
+    Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
     Encoding stdoutEncoding = systemEncoding,
@@ -105,7 +106,7 @@ class LocalProcessManager implements ProcessManager {
   }
 
   @override
-  bool canRun(covariant String executable, {String workingDirectory}) =>
+  bool canRun(covariant String executable, {String? workingDirectory}) =>
       getExecutablePath(executable, workingDirectory) != null;
 
   @override
@@ -115,12 +116,12 @@ class LocalProcessManager implements ProcessManager {
 }
 
 String _getExecutable(
-    List<dynamic> command, String workingDirectory, bool runInShell) {
+    List<dynamic> command, String? workingDirectory, bool runInShell) {
   String commandName = command.first.toString();
   if (runInShell) {
     return commandName;
   }
-  String exe = getExecutablePath(commandName, workingDirectory);
+  String? exe = getExecutablePath(commandName, workingDirectory);
   if (exe == null) {
     throw ArgumentError('Cannot find executable for $commandName.');
   }

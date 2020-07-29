@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+// @dart=2.10
 import 'dart:async';
 import 'dart:io' as io;
 
@@ -53,7 +54,7 @@ class ProcessWrapper implements io.Process {
   ///
   /// The future returned here will complete with the exit code of the process.
   Future<int> get done async {
-    int result;
+    late int result;
     await Future.wait<void>(<Future<void>>[
       _stdoutDone.future,
       _stderrDone.future,
@@ -61,7 +62,6 @@ class ProcessWrapper implements io.Process {
         result = value;
       }),
     ]);
-    assert(result != null);
     return result;
   }
 
