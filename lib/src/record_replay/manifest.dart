@@ -45,8 +45,7 @@ class Manifest {
   /// [toJson]), a [FormatException] will be thrown.
   factory Manifest.fromJson(String json) {
     List<Map<String, dynamic>> decoded =
-        (jsonDecode(json) as List<dynamic>)
-            .cast<Map<String, dynamic>>();
+        (jsonDecode(json) as List<dynamic>).cast<Map<String, dynamic>>();
     Manifest manifest = Manifest();
     decoded.forEach((Map<String, dynamic> entry) {
       switch (entry['type'] as String) {
