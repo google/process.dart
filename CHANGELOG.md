@@ -3,7 +3,7 @@
 * Migrate to null-safety.
 * Remove record/replay functionality.
 * Remove implicit casts in preparation for null-safety.
-* Remove dependency on `package:intl`.
+* Remove dependency on `package:intl` and `package:meta`.
 
 #### 3.0.13
 
