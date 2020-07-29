@@ -27,4 +27,4 @@ echo "PASSED"
 set -e
 
 # Run the tests.
-pub run test --enable-experiment=non-nullable
+pub run --enable-experiment=non-nullable test
