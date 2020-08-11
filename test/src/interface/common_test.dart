@@ -48,12 +48,12 @@ void main() {
         String expectedPath = command;
         fs.file(command).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -62,7 +62,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -71,12 +71,12 @@ void main() {
         String expectedPath = fs.path.join(dir2.path, command);
         fs.file(expectedPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -85,7 +85,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -96,12 +96,12 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -110,7 +110,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -119,12 +119,12 @@ void main() {
         String expectedPath = fs.path.join(workingDir.path, command);
         fs.file(expectedPath).createSync(recursive: true);
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -133,7 +133,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -144,12 +144,12 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -158,7 +158,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -171,24 +171,24 @@ void main() {
         fs.file(wrongPath1).createSync();
         fs.file(wrongPath2).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
       test('not found', () {
         String command = 'foo.exe';
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         expect(executablePath, isNull);
       });
 
@@ -220,12 +220,12 @@ void main() {
         String expectedPath = command;
         fs.file(command).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           null,
           platform: platform,
           fs: fsNoCwd,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -233,12 +233,12 @@ void main() {
         FileSystem fsNoCwd = MemoryFileSystemNoCwd(fs);
         String command = fs.path.join('.', 'bla.exe');
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           null,
           platform: platform,
           fs: fsNoCwd,
-        )!;
+        );
         expect(executablePath, isNull);
       });
     });
@@ -261,12 +261,12 @@ void main() {
         fs.file(command).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -277,24 +277,24 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         _expectSamePath(executablePath, expectedPath);
       });
 
       test('not found', () {
         String command = 'foo';
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
           fs: fs,
-        )!;
+        );
         expect(executablePath, isNull);
       });
 
@@ -308,9 +308,9 @@ void main() {
   });
 }
 
-void _expectSamePath(String actual, String expected) {
+void _expectSamePath(String? actual, String? expected) {
   expect(actual, isNotNull);
-  expect(actual.toLowerCase(), expected.toLowerCase());
+  expect(actual!.toLowerCase(), expected!.toLowerCase());
 }
 
 class MemoryFileSystemNoCwd extends ForwardingFileSystem {
