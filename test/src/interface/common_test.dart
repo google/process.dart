@@ -10,8 +10,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('getExecutablePath', () {
-    FileSystem fs;
-    Directory workingDir, dir1, dir2, dir3;
+    late FileSystem fs;
+    late Directory workingDir, dir1, dir2, dir3;
 
     void initialize(FileSystemStyle style) {
       setUp(() {
@@ -29,7 +29,7 @@ void main() {
     });
 
     group('on windows', () {
-      Platform platform;
+      late Platform platform;
 
       initialize(FileSystemStyle.windows);
 
@@ -48,7 +48,7 @@ void main() {
         String expectedPath = command;
         fs.file(command).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -71,7 +71,7 @@ void main() {
         String expectedPath = fs.path.join(dir2.path, command);
         fs.file(expectedPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -96,7 +96,7 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -119,7 +119,7 @@ void main() {
         String expectedPath = fs.path.join(workingDir.path, command);
         fs.file(expectedPath).createSync(recursive: true);
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -144,7 +144,7 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -171,7 +171,7 @@ void main() {
         fs.file(wrongPath1).createSync();
         fs.file(wrongPath2).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -183,7 +183,7 @@ void main() {
       test('not found', () {
         String command = 'foo.exe';
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -220,7 +220,7 @@ void main() {
         String expectedPath = command;
         fs.file(command).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           null,
           platform: platform,
@@ -233,7 +233,7 @@ void main() {
         FileSystem fsNoCwd = MemoryFileSystemNoCwd(fs);
         String command = fs.path.join('.', 'bla.exe');
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           null,
           platform: platform,
@@ -244,7 +244,7 @@ void main() {
     });
 
     group('on Linux', () {
-      Platform platform;
+      late Platform platform;
 
       initialize(FileSystemStyle.posix);
 
@@ -261,7 +261,7 @@ void main() {
         fs.file(command).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -277,7 +277,7 @@ void main() {
         fs.file(expectedPath).createSync();
         fs.file(wrongPath).createSync();
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -289,7 +289,7 @@ void main() {
       test('not found', () {
         String command = 'foo';
 
-        String executablePath = getExecutablePath(
+        String? executablePath = getExecutablePath(
           command,
           workingDir.path,
           platform: platform,
@@ -308,9 +308,9 @@ void main() {
   });
 }
 
-void _expectSamePath(String actual, String expected) {
+void _expectSamePath(String? actual, String? expected) {
   expect(actual, isNotNull);
-  expect(actual.toLowerCase(), expected.toLowerCase());
+  expect(actual!.toLowerCase(), expected!.toLowerCase());
 }
 
 class MemoryFileSystemNoCwd extends ForwardingFileSystem {

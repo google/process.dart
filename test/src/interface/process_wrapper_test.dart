@@ -11,8 +11,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('ProcessWrapper', () {
-    TestProcess delegate;
-    ProcessWrapper process;
+    late TestProcess delegate;
+    late ProcessWrapper process;
 
     setUp(() {
       delegate = TestProcess();
@@ -20,7 +20,7 @@ void main() {
     });
 
     group('done', () {
-      bool done;
+      late bool done;
 
       setUp(() {
         done = false;
