@@ -1,4 +1,4 @@
-#### 4.0.0-dev
+#### 4.0.0-nullsafety.1
 
 * Migrate to null-safety.
 * Remove record/replay functionality.

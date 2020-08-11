@@ -10,8 +10,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('getExecutablePath', () {
-    FileSystem fs;
-    Directory workingDir, dir1, dir2, dir3;
+    late FileSystem fs;
+    late Directory workingDir, dir1, dir2, dir3;
 
     void initialize(FileSystemStyle style) {
       setUp(() {
@@ -29,7 +29,7 @@ void main() {
     });
 
     group('on windows', () {
-      Platform platform;
+      late Platform platform;
 
       initialize(FileSystemStyle.windows);
 
@@ -53,7 +53,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -62,7 +62,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -76,7 +76,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -85,7 +85,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -101,7 +101,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -110,7 +110,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -124,7 +124,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -133,7 +133,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -149,7 +149,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
 
         command = fs.path.withoutExtension(command);
@@ -158,7 +158,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -176,7 +176,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -188,7 +188,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         expect(executablePath, isNull);
       });
 
@@ -225,7 +225,7 @@ void main() {
           null,
           platform: platform,
           fs: fsNoCwd,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -238,13 +238,13 @@ void main() {
           null,
           platform: platform,
           fs: fsNoCwd,
-        );
+        )!;
         expect(executablePath, isNull);
       });
     });
 
     group('on Linux', () {
-      Platform platform;
+      late Platform platform;
 
       initialize(FileSystemStyle.posix);
 
@@ -266,7 +266,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -282,7 +282,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         _expectSamePath(executablePath, expectedPath);
       });
 
@@ -294,7 +294,7 @@ void main() {
           workingDir.path,
           platform: platform,
           fs: fs,
-        );
+        )!;
         expect(executablePath, isNull);
       });
 
