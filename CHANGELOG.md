@@ -1,3 +1,7 @@
+#### 4.0.0-nullsafety.2
+
+* Update supported SDK range.
+
 #### 4.0.0-nullsafety.1
 
 * Migrate to null-safety.
