@@ -58,7 +58,7 @@ abstract class ProcessManager {
   /// file `test.dart` on Linux.
   ///
   ///     ProcessManager mgr = new LocalProcessManager();
-  ///     mgr.start('grep', ['-i', 'main', 'test.dart']).then((process) {
+  ///     mgr.start(['grep', '-i', 'main', 'test.dart']).then((process) {
   ///       stdout.addStream(process.stdout);
   ///       stderr.addStream(process.stderr);
   ///     });
@@ -81,7 +81,7 @@ abstract class ProcessManager {
   /// communication channels are closed. The process' exit code will
   /// not become available when it terminated.
   ///
-  /// The default value for `mode` is `ProcessStartMode.NORMAL`.
+  /// The default value for `mode` is `ProcessStartMode.normal`.
   Future<Process> start(
     List<dynamic> command, {
     String workingDirectory,
