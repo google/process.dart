@@ -1,5 +1,5 @@
 name: process
-version: 4.0.0-nullsafety.4
+version: 4.0.0
 description: A pluggable, mockable process invocation abstraction for Dart.
 homepage: https://github.com/google/process.dart
 
@@ -7,9 +7,9 @@ environment:
   sdk: '>=2.12.0-0 <3.0.0'
 
 dependencies:
-  file: '^6.0.0-nullsafety.4'
-  path: ^1.8.0-nullsafety.3
-  platform: '^3.0.0-nullsafety.4'
+  file: '^6.0.0'
+  path: ^1.8.0
+  platform: '^3.0.0'
 
 dev_dependencies:
   test: ^1.16.0-nullsafety.8

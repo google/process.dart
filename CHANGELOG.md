@@ -1,3 +1,11 @@
+#### 4.0.0
+
+* First stable null safe release.
+
+#### 4.0.0-nullsafety.4
+
+* Update supported SDK range.
+
 #### 4.0.0-nullsafety.3
 
 * Update supported SDK range.
