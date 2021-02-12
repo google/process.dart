@@ -192,6 +192,29 @@ void main() {
         expect(executablePath, isNull);
       });
 
+      test('not found with errorOnNull throws exception with match state', () {
+        String command = 'foo.exe';
+        dynamic error;
+        try {
+          getExecutablePath(
+            command,
+            workingDir.path,
+            platform: platform,
+            fs: fs,
+            errorOnNull: true,
+          );
+          fail('Expected to throw');
+        } catch (err) {
+          error = err;
+        }
+
+        expect(error, isA<ArgumentError>());
+        expect(
+            error.toString(),
+            contains(
+                'workingDirectory: C:\\.tmp_rand0\\work_dir_rand0, candidates: 2'));
+      });
+
       test('when path has spaces', () {
         expect(
             sanitizeExecutablePath('Program Files\\bla.exe',
@@ -296,6 +319,29 @@ void main() {
           fs: fs,
         );
         expect(executablePath, isNull);
+      });
+
+      test('not found with errorOnNull throws exception with match state', () {
+        String command = 'foo';
+        dynamic error;
+        try {
+          getExecutablePath(
+            command,
+            workingDir.path,
+            platform: platform,
+            fs: fs,
+            errorOnNull: true,
+          );
+          fail('Expected to throw');
+        } catch (err) {
+          error = err;
+        }
+
+        expect(error, isA<ArgumentError>());
+        expect(
+            error.toString(),
+            contains(
+                'workingDirectory: /.tmp_rand0/work_dir_rand0, candidates: 2'));
       });
 
       test('when path has spaces', () {
