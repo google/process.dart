@@ -90,11 +90,9 @@ String? getExecutablePath(
     }
   }
   if (errorOnNull) {
-    throw ArgumentError(
-      'Failed to resolve $command to an executable.\n'
-      'workingDirectory: $workingDirectory, '
-      'candidates: ${candidates.length}'
-    );
+    throw ArgumentError('Failed to resolve $command to an executable.\n'
+        'workingDirectory: $workingDirectory, '
+        'candidates: ${candidates.length}');
   }
   return null;
 }

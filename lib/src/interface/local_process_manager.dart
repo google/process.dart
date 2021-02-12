@@ -105,7 +105,8 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   bool canRun(covariant String executable, {String? workingDirectory}) =>
-      getExecutablePath(executable, workingDirectory, errorOnNull: false) != null;
+      getExecutablePath(executable, workingDirectory, errorOnNull: false) !=
+      null;
 
   @override
   bool killPid(int pid, [ProcessSignal signal = ProcessSignal.sigterm]) {
@@ -119,7 +120,8 @@ String _getExecutable(
   if (runInShell) {
     return commandName;
   }
-  String? exe = getExecutablePath(commandName, workingDirectory, errorOnNull: true);
+  String? exe =
+      getExecutablePath(commandName, workingDirectory, errorOnNull: true);
   if (exe == null) {
     throw ArgumentError('Cannot find executable for $commandName.');
   }

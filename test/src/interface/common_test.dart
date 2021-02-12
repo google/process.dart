@@ -209,7 +209,10 @@ void main() {
         }
 
         expect(error, isA<ArgumentError>());
-        expect(error.toString(), contains('workingDirectory: C:\\.tmp_rand0\\work_dir_rand0, candidates: 2'));
+        expect(
+            error.toString(),
+            contains(
+                'workingDirectory: C:\\.tmp_rand0\\work_dir_rand0, candidates: 2'));
       });
 
       test('when path has spaces', () {
@@ -335,7 +338,10 @@ void main() {
         }
 
         expect(error, isA<ArgumentError>());
-        expect(error.toString(), contains('workingDirectory: /.tmp_rand0/work_dir_rand0, candidates: 2'));
+        expect(
+            error.toString(),
+            contains(
+                'workingDirectory: /.tmp_rand0/work_dir_rand0, candidates: 2'));
       });
 
       test('when path has spaces', () {
