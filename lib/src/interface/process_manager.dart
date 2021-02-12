@@ -83,9 +83,9 @@ abstract class ProcessManager {
   ///
   /// The default value for `mode` is `ProcessStartMode.normal`.
   Future<Process> start(
-    List<dynamic> command, {
-    String workingDirectory,
-    Map<String, String> environment,
+    List<Object> command, {
+    String? workingDirectory,
+    Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
     ProcessStartMode mode = ProcessStartMode.normal,
@@ -136,9 +136,9 @@ abstract class ProcessManager {
   ///       stderr.write(result.stderr);
   ///     });
   Future<ProcessResult> run(
-    List<dynamic> command, {
-    String workingDirectory,
-    Map<String, String> environment,
+    List<Object> command, {
+    String? workingDirectory,
+    Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
     Encoding stdoutEncoding = systemEncoding,
@@ -153,9 +153,9 @@ abstract class ProcessManager {
   /// Returns a `ProcessResult` with the result of running the process,
   /// i.e., exit code, standard out and standard in.
   ProcessResult runSync(
-    List<dynamic> command, {
-    String workingDirectory,
-    Map<String, String> environment,
+    List<Object> command, {
+    String? workingDirectory,
+    Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
     Encoding stdoutEncoding = systemEncoding,

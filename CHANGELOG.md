@@ -1,3 +1,8 @@
+#### 4.0.1
+
+* Fix the signatures of `ProcessManager.run`, `.runSync`, and `.start` to be
+  consistent with `LocalProcessManager`'s.
+
 #### 4.0.0
 
 * First stable null safe release.

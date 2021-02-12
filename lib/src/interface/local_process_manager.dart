@@ -29,7 +29,7 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   Future<Process> start(
-    covariant List<Object> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
@@ -53,7 +53,7 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   Future<ProcessResult> run(
-    covariant List<Object> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
@@ -79,7 +79,7 @@ class LocalProcessManager implements ProcessManager {
 
   @override
   ProcessResult runSync(
-    covariant List<Object> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
