@@ -1,7 +1,9 @@
-#### 4.0.1
+#### 4.1.0
 
 * Fix the signatures of `ProcessManager.run`, `.runSync`, and `.start` to be
   consistent with `LocalProcessManager`'s.
+* Added more details to the `ArgumentError` thrown when a command cannot be resolved
+  to an executable.
 
 #### 4.0.0
 

@@ -53,9 +53,9 @@ String? getExecutablePath(
   String? workingDirectory, {
   Platform platform = const LocalPlatform(),
   FileSystem fs = const LocalFileSystem(),
+  bool errorOnNull = false,
 }) {
   assert(_osToPathStyle[platform.operatingSystem] == fs.path.style.name);
-
   try {
     workingDirectory ??= fs.currentDirectory.path;
   } on FileSystemException {
@@ -88,6 +88,13 @@ String? getExecutablePath(
     if (fs.file(path).existsSync()) {
       return path;
     }
+  }
+  if (errorOnNull) {
+    throw ArgumentError(
+      'Failed to resolve $command to an executable.\n'
+      'workingDirectory: $workingDirectory, '
+      'candidates: ${candidates.length}'
+    );
   }
   return null;
 }
