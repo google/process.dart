@@ -2,6 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:io' as io;
+import 'package:file/local.dart';
+import 'package:path/path.dart' as path;
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
 import 'package:platform/platform.dart';
@@ -350,6 +353,87 @@ void main() {
                 platform: platform),
             '/usr/local/bin/foo bar');
       });
+    });
+  });
+  group('Real Filesystem', () {
+    late Platform platform;
+    late Directory tmpDir;
+    late Directory pathDir1;
+    late Directory pathDir2;
+    late Directory pathDir3;
+    late Directory pathDir4;
+    late Directory pathDir5;
+    late File command1;
+    late File command2;
+    late File command3;
+    late File command4;
+    late File command5;
+    const Platform localPlatform = LocalPlatform();
+    late FileSystem fs;
+
+    setUp(() {
+      fs = LocalFileSystem();
+      tmpDir = fs.systemTempDirectory.createTempSync();
+      pathDir1 = tmpDir.childDirectory('path1')..createSync();
+      pathDir2 = tmpDir.childDirectory('path2')..createSync();
+      pathDir3 = tmpDir.childDirectory('path3')..createSync();
+      pathDir4 = tmpDir.childDirectory('path4')..createSync();
+      pathDir5 = tmpDir.childDirectory('path5')..createSync();
+      command1 = pathDir1.childFile('command')..createSync();
+      command2 = pathDir2.childFile('command')..createSync();
+      command3 = pathDir3.childFile('command')..createSync();
+      command4 = pathDir4.childFile('command')..createSync();
+      command5 = pathDir5.childFile('command')..createSync();
+      platform = FakePlatform(
+        operatingSystem: localPlatform.operatingSystem,
+        environment: <String, String>{
+          'PATH': <Directory>[
+            pathDir1,
+            pathDir2,
+            pathDir3,
+            pathDir4,
+            pathDir5,
+          ].map<String>((Directory dir) => dir.absolute.path).join(':'),
+        },
+      );
+    });
+
+    tearDown(() {
+      tmpDir.deleteSync(recursive: true);
+    });
+
+    // This doesn't use the memory filesystem because Dart can't modify file
+    // executable permissions, so we have to create them with actual commands.
+    test('Only returns executables in PATH', () {
+      if (localPlatform.isWindows) {
+        // Windows doesn't check for executable-ness, and we can't run 'chmod'
+        // on Windows anyhow.
+        return;
+      }
+
+      // Make the second command in the path executable, but not the first.
+      // No executable permissions
+      io.Process.runSync("chmod", <String>["0644", "--", command1.path]);
+      // Only group executable permissions
+      io.Process.runSync("chmod", <String>["0645", "--", command2.path]);
+      // Only other executable permissions
+      io.Process.runSync("chmod", <String>["0654", "--", command3.path]);
+      // All executable permissions, but not readable
+      io.Process.runSync("chmod", <String>["0311", "--", command4.path]);
+      // All executable permissions
+      io.Process.runSync("chmod", <String>["0755", "--", command5.path]);
+
+      String? executablePath = getExecutablePath(
+        'command',
+        tmpDir.path,
+        platform: platform,
+        fs: fs,
+      );
+
+      // Make sure that the path returned is for the last command, since that
+      // one comes last in the PATH, but is the only one executable by the
+      // user.
+      _expectSamePath(executablePath, command5.absolute.path);
     });
   });
 }

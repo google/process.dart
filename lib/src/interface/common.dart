@@ -16,7 +16,7 @@ const Map<String, String> _osToPathStyle = <String, String>{
   'windows': 'windows',
 };
 
-/// Sanatizes the executable path on Windows.
+/// Sanitizes the executable path on Windows.
 /// https://github.com/dart-lang/sdk/issues/37751
 String sanitizeExecutablePath(String executable,
     {Platform platform = const LocalPlatform()}) {
@@ -85,8 +85,24 @@ String? getExecutablePath(
     candidates = _getCandidatePaths(command, searchPath, extensions, context);
   }
   for (String path in candidates) {
-    if (fs.file(path).existsSync()) {
-      return path;
+    final File candidate = fs.file(path);
+    // Only return files that exist.
+    if (candidate.existsSync()) {
+      if (platform.isWindows) {
+        // Windows doesn't really have an "executable" bit, or symbolic links
+        // (OK, yeah, it sort of has both of those, but not in a way that Dart
+        // can easily access).
+        return path;
+      }
+      FileStat stat = candidate.statSync();
+      // Will only return files or links that are readable and executable by the
+      // user.
+      // Mode 0x140 == 0x100 | 0x040 == 0100 | 0400 in octal == readable | executable
+      if (stat.mode & 0x140 == 0x140 &&
+          (stat.type == FileSystemEntityType.file ||
+              stat.type == FileSystemEntityType.link)) {
+        return path;
+      }
     }
   }
   if (errorOnNull) {
