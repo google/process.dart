@@ -86,23 +86,26 @@ String? getExecutablePath(
   }
   for (String path in candidates) {
     final File candidate = fs.file(path);
-    // Only return files that exist.
-    if (candidate.existsSync()) {
-      if (platform.isWindows) {
-        // Windows doesn't really have an "executable" bit, or symbolic links
-        // (OK, yeah, it sort of has both of those, but not in a way that Dart
-        // can easily access).
-        return path;
-      }
-      FileStat stat = candidate.statSync();
-      // Will only return files or links that are readable and executable by the
-      // user.
-      // Mode 0x140 == 0x100 | 0x040 == 0100 | 0400 in octal == readable | executable
-      if (stat.mode & 0x140 == 0x140 &&
-          (stat.type == FileSystemEntityType.file ||
-              stat.type == FileSystemEntityType.link)) {
-        return path;
-      }
+    FileStat stat = candidate.statSync();
+    // Only return files or links that exist.
+    if (stat.type == FileSystemEntityType.notFound ||
+        stat.type == FileSystemEntityType.directory) {
+      continue;
+    }
+
+    const int isExecutable = 0x40;
+    const int isReadable = 0x100;
+    const int isExecutableAndReadable = isExecutable | isReadable;
+    // Should only return files or links that are readable and executable by the
+    // user.
+
+    // On Windows it's not actually possible to only return files that are
+    // readable, since Dart reports files that have had read permission removed
+    // as being readable, but not checking for it is the same as checking for it
+    // and finding it readable, so we use the same check here on all platforms,
+    // so that if Dart ever gets fixed, it'll just work.
+    if (stat.mode & isExecutableAndReadable == isExecutableAndReadable) {
+      return path;
     }
   }
   if (errorOnNull) {
