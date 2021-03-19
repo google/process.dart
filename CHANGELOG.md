@@ -1,3 +1,8 @@
+#### 4.1.1
+
+* Fixed `getExecutablePath()` to only return path items that are
+  executable and readable to the user.
+
 #### 4.1.0
 
 * Fix the signatures of `ProcessManager.run`, `.runSync`, and `.start` to be
