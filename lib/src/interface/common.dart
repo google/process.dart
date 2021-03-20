@@ -16,7 +16,7 @@ const Map<String, String> _osToPathStyle = <String, String>{
   'windows': 'windows',
 };
 
-/// Sanatizes the executable path on Windows.
+/// Sanitizes the executable path on Windows.
 /// https://github.com/dart-lang/sdk/issues/37751
 String sanitizeExecutablePath(String executable,
     {Platform platform = const LocalPlatform()}) {
@@ -85,7 +85,26 @@ String? getExecutablePath(
     candidates = _getCandidatePaths(command, searchPath, extensions, context);
   }
   for (String path in candidates) {
-    if (fs.file(path).existsSync()) {
+    final File candidate = fs.file(path);
+    FileStat stat = candidate.statSync();
+    // Only return files or links that exist.
+    if (stat.type == FileSystemEntityType.notFound ||
+        stat.type == FileSystemEntityType.directory) {
+      continue;
+    }
+
+    const int isExecutable = 0x40;
+    const int isReadable = 0x100;
+    const int isExecutableAndReadable = isExecutable | isReadable;
+    // Should only return files or links that are readable and executable by the
+    // user.
+
+    // On Windows it's not actually possible to only return files that are
+    // readable, since Dart reports files that have had read permission removed
+    // as being readable, but not checking for it is the same as checking for it
+    // and finding it readable, so we use the same check here on all platforms,
+    // so that if Dart ever gets fixed, it'll just work.
+    if (stat.mode & isExecutableAndReadable == isExecutableAndReadable) {
       return path;
     }
   }
