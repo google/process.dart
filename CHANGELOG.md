@@ -1,6 +1,6 @@
 #### 4.2.0
 
-* Fix the signatures of `ProcessManager.canRun` to be consistent with
+* Fix the signature of `ProcessManager.canRun` to be consistent with
   `LocalProcessManager`.
 
 #### 4.1.1
