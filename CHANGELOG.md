@@ -1,3 +1,8 @@
+#### 4.2.0
+
+* Fix the signature of `ProcessManager.canRun` to be consistent with
+  `LocalProcessManager`.
+
 #### 4.1.1
 
 * Fixed `getExecutablePath()` to only return path items that are
