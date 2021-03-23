@@ -163,7 +163,7 @@ abstract class ProcessManager {
   });
 
   /// Returns `true` if the [executable] exists and if it can be executed.
-  bool canRun(dynamic executable, {String workingDirectory});
+  bool canRun(dynamic executable, {String? workingDirectory});
 
   /// Kills the process with id [pid].
   ///
