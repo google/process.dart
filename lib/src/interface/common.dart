@@ -119,15 +119,15 @@ String? getExecutablePath(
       throw ProcessPackageExecutableNotFoundException(
         executable,
         message:
-            'Found candidates, but failed to resolve $executable to an executable.',
+            'Found candidates, but lacked sufficient permissions to execute "$executable".',
         workingDirectory: workingDirectory,
-        candidates: candidates,
+        candidates: foundCandidates,
         searchPath: searchPath,
       );
     } else {
       throw ProcessPackageExecutableNotFoundException(
         executable,
-        message: 'Failed to resolve $executable to an executable.',
+        message: 'Failed to find "$executable" in the search path.',
         workingDirectory: workingDirectory,
         searchPath: searchPath,
       );

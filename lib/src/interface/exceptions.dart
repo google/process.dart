@@ -30,7 +30,7 @@ class ProcessPackageException extends ProcessException {
     List<String> arguments = const <String>[],
     String message = "",
     int errorCode = 0,
-    this.workingDirectory = '',
+    this.workingDirectory,
   }) : super(executable, arguments, message, errorCode);
 
   /// Creates a [ProcessPackageException] from a [ProcessException].
@@ -71,7 +71,7 @@ class ProcessPackageExecutableNotFoundException
     List<String> arguments = const <String>[],
     String message = "",
     int errorCode = 0,
-    String workingDirectory = '',
+    String? workingDirectory,
     this.candidates = const <String>[],
     this.searchPath = const <String>[],
   }) : super(
@@ -90,7 +90,7 @@ class ProcessPackageExecutableNotFoundException
 
   @override
   String toString() {
-    StringBuffer buffer = StringBuffer('$runtimeType: $message');
+    StringBuffer buffer = StringBuffer('$runtimeType: $message\n');
     // Don't add an extra space if there are no arguments.
     final String args = arguments.isNotEmpty ? ' ${arguments.join(' ')}' : '';
     buffer.writeln('  Command: $executable$args');

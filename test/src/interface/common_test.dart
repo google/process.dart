@@ -370,6 +370,9 @@ void main() {
     });
   });
   group('Real Filesystem', () {
+    // These tests don't use the memory filesystem because Dart can't modify file
+    // executable permissions, so we have to create them with actual commands.
+
     late Platform platform;
     late Directory tmpDir;
     late Directory pathDir1;
@@ -416,8 +419,6 @@ void main() {
       tmpDir.deleteSync(recursive: true);
     });
 
-    // This doesn't use the memory filesystem because Dart can't modify file
-    // executable permissions, so we have to create them with actual commands.
     test('Only returns executables in PATH', () {
       if (localPlatform.isWindows) {
         // Windows doesn't check for executable-ness, and we can't run 'chmod'
@@ -448,6 +449,73 @@ void main() {
       // one comes last in the PATH, but is the only one executable by the
       // user.
       _expectSamePath(executablePath, command5.absolute.path);
+    });
+
+    test(
+        'Test that finding non-executable paths throws with proper information',
+        () {
+      if (localPlatform.isWindows) {
+        // Windows doesn't check for executable-ness, and we can't run 'chmod'
+        // on Windows anyhow.
+        return;
+      }
+
+      // Make the second command in the path executable, but not the first.
+      // No executable permissions
+      io.Process.runSync("chmod", <String>["0644", "--", command1.path]);
+      // Only group executable permissions
+      io.Process.runSync("chmod", <String>["0645", "--", command2.path]);
+      // Only other executable permissions
+      io.Process.runSync("chmod", <String>["0654", "--", command3.path]);
+      // All executable permissions, but not readable
+      io.Process.runSync("chmod", <String>["0311", "--", command4.path]);
+
+      io.ProcessException error;
+      try {
+        getExecutablePath(
+          'command',
+          tmpDir.path,
+          platform: platform,
+          fs: fs,
+          throwOnFailure: true,
+        );
+        fail('Expected to throw');
+      } on io.ProcessException catch (err) {
+        error = err;
+      }
+
+      expect(error, isA<ProcessPackageExecutableNotFoundException>());
+      ProcessPackageExecutableNotFoundException notFoundException =
+          error as ProcessPackageExecutableNotFoundException;
+      expect(
+          notFoundException.candidates,
+          equals(<String>[
+            '${tmpDir.path}/path1/command',
+            '${tmpDir.path}/path2/command',
+            '${tmpDir.path}/path3/command',
+            '${tmpDir.path}/path4/command',
+            '${tmpDir.path}/path5/command',
+          ]));
+      expect(
+        error.toString(),
+        equals(
+          'ProcessPackageExecutableNotFoundException: Found candidates, but lacked sufficient permissions to execute "command".\n'
+          '  Command: command\n'
+          '  Working Directory: ${tmpDir.path}\n'
+          '  Candidates:\n'
+          '    ${tmpDir.path}/path1/command\n'
+          '    ${tmpDir.path}/path2/command\n'
+          '    ${tmpDir.path}/path3/command\n'
+          '    ${tmpDir.path}/path4/command\n'
+          '    ${tmpDir.path}/path5/command\n'
+          '  Search Path:\n'
+          '    ${tmpDir.path}/path1\n'
+          '    ${tmpDir.path}/path2\n'
+          '    ${tmpDir.path}/path3\n'
+          '    ${tmpDir.path}/path4\n'
+          '    ${tmpDir.path}/path5\n',
+        ),
+      );
     });
   });
 }

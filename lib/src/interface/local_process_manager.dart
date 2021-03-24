@@ -139,8 +139,11 @@ String _getExecutable(
   if (runInShell) {
     return commandName;
   }
-  return getExecutablePath(commandName, workingDirectory,
-      throwOnFailure: true)!;
+  return getExecutablePath(
+    commandName,
+    workingDirectory,
+    throwOnFailure: true,
+  )!;
 }
 
 List<String> _getArguments(List<Object> command) =>
