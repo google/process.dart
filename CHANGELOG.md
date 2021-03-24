@@ -1,3 +1,9 @@
+#### 4.2.1
+
+* Added custom exception types `ProcessPackageException` and
+  `ProcessPackageExecutableNotFoundException` to provide extra
+  information from exception conditions.
+
 #### 4.2.0
 
 * Fix the signature of `ProcessManager.canRun` to be consistent with
