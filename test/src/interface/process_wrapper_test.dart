@@ -103,7 +103,6 @@ void main() {
         await Future<void>.value();
         expect(done, isTrue);
       });
-
     });
   });
 }

@@ -55,7 +55,8 @@ class ProcessPackageException extends ProcessException {
 }
 
 /// An exception for when an executable is not found that was expected to be found.
-class ProcessPackageExecutableNotFoundException extends ProcessPackageException {
+class ProcessPackageExecutableNotFoundException
+    extends ProcessPackageException {
   /// Creates a const ProcessPackageExecutableNotFoundException
   ///
   /// The optional [candidates] are the files matching the expected executable

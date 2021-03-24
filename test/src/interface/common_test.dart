@@ -195,7 +195,8 @@ void main() {
         expect(executablePath, isNull);
       });
 
-      test('not found with throwOnFailure throws exception with match state', () {
+      test('not found with throwOnFailure throws exception with match state',
+          () {
         String command = 'foo.exe';
         io.ProcessException error;
         try {
@@ -212,16 +213,16 @@ void main() {
         }
 
         expect(error, isA<ProcessPackageExecutableNotFoundException>());
-        ProcessPackageExecutableNotFoundException notFoundException = error as ProcessPackageExecutableNotFoundException;
+        ProcessPackageExecutableNotFoundException notFoundException =
+            error as ProcessPackageExecutableNotFoundException;
         expect(notFoundException.candidates, isEmpty);
         expect(notFoundException.workingDirectory, equals(workingDir.path));
         expect(
             error.toString(),
-            contains(
-              '  Working Directory: C:\\.tmp_rand0\\work_dir_rand0\n'
-              '  Search Path:\n'
-              '    C:\\.tmp_rand0\\dir1_rand0\n'
-              '    C:\\.tmp_rand0\\dir2_rand0\n'));
+            contains('  Working Directory: C:\\.tmp_rand0\\work_dir_rand0\n'
+                '  Search Path:\n'
+                '    C:\\.tmp_rand0\\dir1_rand0\n'
+                '    C:\\.tmp_rand0\\dir2_rand0\n'));
       });
 
       test('when path has spaces', () {
@@ -330,7 +331,8 @@ void main() {
         expect(executablePath, isNull);
       });
 
-      test('not found with throwOnFailure throws exception with match state', () {
+      test('not found with throwOnFailure throws exception with match state',
+          () {
         String command = 'foo';
         io.ProcessException error;
         try {
@@ -347,16 +349,16 @@ void main() {
         }
 
         expect(error, isA<ProcessPackageExecutableNotFoundException>());
-        ProcessPackageExecutableNotFoundException notFoundException = error as ProcessPackageExecutableNotFoundException;
+        ProcessPackageExecutableNotFoundException notFoundException =
+            error as ProcessPackageExecutableNotFoundException;
         expect(notFoundException.candidates, isEmpty);
         expect(notFoundException.workingDirectory, equals(workingDir.path));
         expect(
             error.toString(),
-            contains(
-              '  Working Directory: /.tmp_rand0/work_dir_rand0\n'
-              '  Search Path:\n'
-              '    /.tmp_rand0/dir1_rand0\n'
-              '    /.tmp_rand0/dir2_rand0\n'));
+            contains('  Working Directory: /.tmp_rand0/work_dir_rand0\n'
+                '  Search Path:\n'
+                '    /.tmp_rand0/dir1_rand0\n'
+                '    /.tmp_rand0/dir2_rand0\n'));
       });
 
       test('when path has spaces', () {

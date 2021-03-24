@@ -78,7 +78,7 @@ String? getExecutablePath(
   }
 
   List<String> candidates = <String>[];
-  late List<String> searchPath;
+  List<String> searchPath;
   if (executable.contains(context.separator)) {
     // Deal with commands that specify a relative or absolute path differently.
     searchPath = <String>[workingDirectory];
@@ -117,18 +117,19 @@ String? getExecutablePath(
   if (throwOnFailure) {
     if (foundCandidates.isNotEmpty) {
       throw ProcessPackageExecutableNotFoundException(
-          executable,
-          message: 'Found candidates, but failed to resolve $executable to an executable.',
-          workingDirectory: workingDirectory,
-          candidates: candidates,
-          searchPath: searchPath,
+        executable,
+        message:
+            'Found candidates, but failed to resolve $executable to an executable.',
+        workingDirectory: workingDirectory,
+        candidates: candidates,
+        searchPath: searchPath,
       );
     } else {
       throw ProcessPackageExecutableNotFoundException(
-          executable,
-          message: 'Failed to resolve $executable to an executable.',
-          workingDirectory: workingDirectory,
-          searchPath: searchPath,
+        executable,
+        message: 'Failed to resolve $executable to an executable.',
+        workingDirectory: workingDirectory,
+        searchPath: searchPath,
       );
     }
   }

@@ -55,7 +55,8 @@ class LocalProcessManager implements ProcessManager {
         mode: mode,
       );
     } on ProcessException catch (exception) {
-      throw ProcessPackageException.fromProcessException(exception, workingDirectory: workingDirectory);
+      throw ProcessPackageException.fromProcessException(exception,
+          workingDirectory: workingDirectory);
     }
   }
 
@@ -85,7 +86,8 @@ class LocalProcessManager implements ProcessManager {
         stderrEncoding: stderrEncoding,
       );
     } on ProcessException catch (exception) {
-      throw ProcessPackageException.fromProcessException(exception, workingDirectory: workingDirectory);
+      throw ProcessPackageException.fromProcessException(exception,
+          workingDirectory: workingDirectory);
     }
   }
 
@@ -115,7 +117,8 @@ class LocalProcessManager implements ProcessManager {
         stderrEncoding: stderrEncoding,
       );
     } on ProcessException catch (exception) {
-      throw ProcessPackageException.fromProcessException(exception, workingDirectory: workingDirectory);
+      throw ProcessPackageException.fromProcessException(exception,
+          workingDirectory: workingDirectory);
     }
   }
 
@@ -136,7 +139,8 @@ String _getExecutable(
   if (runInShell) {
     return commandName;
   }
-  return getExecutablePath(commandName, workingDirectory, throwOnFailure: true)!;
+  return getExecutablePath(commandName, workingDirectory,
+      throwOnFailure: true)!;
 }
 
 List<String> _getArguments(List<Object> command) =>
