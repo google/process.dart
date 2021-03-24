@@ -4,10 +4,10 @@
 
 import 'dart:io' as io;
 import 'package:file/local.dart';
-import 'package:path/path.dart' as path;
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
 import 'package:platform/platform.dart';
+import 'package:process/process.dart';
 import 'package:process/src/interface/common.dart';
 import 'package:test/test.dart';
 
@@ -195,27 +195,33 @@ void main() {
         expect(executablePath, isNull);
       });
 
-      test('not found with errorOnNull throws exception with match state', () {
+      test('not found with throwOnFailure throws exception with match state', () {
         String command = 'foo.exe';
-        dynamic error;
+        io.ProcessException error;
         try {
           getExecutablePath(
             command,
             workingDir.path,
             platform: platform,
             fs: fs,
-            errorOnNull: true,
+            throwOnFailure: true,
           );
           fail('Expected to throw');
-        } catch (err) {
+        } on io.ProcessException catch (err) {
           error = err;
         }
 
-        expect(error, isA<ArgumentError>());
+        expect(error, isA<ProcessPackageExecutableNotFoundException>());
+        ProcessPackageExecutableNotFoundException notFoundException = error as ProcessPackageExecutableNotFoundException;
+        expect(notFoundException.candidates, isEmpty);
+        expect(notFoundException.workingDirectory, equals(workingDir.path));
         expect(
             error.toString(),
             contains(
-                'workingDirectory: C:\\.tmp_rand0\\work_dir_rand0, candidates: 2'));
+              '  Working Directory: C:\\.tmp_rand0\\work_dir_rand0\n'
+              '  Search Path:\n'
+              '    C:\\.tmp_rand0\\dir1_rand0\n'
+              '    C:\\.tmp_rand0\\dir2_rand0\n'));
       });
 
       test('when path has spaces', () {
@@ -324,27 +330,33 @@ void main() {
         expect(executablePath, isNull);
       });
 
-      test('not found with errorOnNull throws exception with match state', () {
+      test('not found with throwOnFailure throws exception with match state', () {
         String command = 'foo';
-        dynamic error;
+        io.ProcessException error;
         try {
           getExecutablePath(
             command,
             workingDir.path,
             platform: platform,
             fs: fs,
-            errorOnNull: true,
+            throwOnFailure: true,
           );
           fail('Expected to throw');
-        } catch (err) {
+        } on io.ProcessException catch (err) {
           error = err;
         }
 
-        expect(error, isA<ArgumentError>());
+        expect(error, isA<ProcessPackageExecutableNotFoundException>());
+        ProcessPackageExecutableNotFoundException notFoundException = error as ProcessPackageExecutableNotFoundException;
+        expect(notFoundException.candidates, isEmpty);
+        expect(notFoundException.workingDirectory, equals(workingDir.path));
         expect(
             error.toString(),
             contains(
-                'workingDirectory: /.tmp_rand0/work_dir_rand0, candidates: 2'));
+              '  Working Directory: /.tmp_rand0/work_dir_rand0\n'
+              '  Search Path:\n'
+              '    /.tmp_rand0/dir1_rand0\n'
+              '    /.tmp_rand0/dir2_rand0\n'));
       });
 
       test('when path has spaces', () {

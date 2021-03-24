@@ -7,6 +7,8 @@ import 'package:file/local.dart';
 import 'package:path/path.dart' show Context;
 import 'package:platform/platform.dart';
 
+import 'exceptions.dart';
+
 const Map<String, String> _osToPathStyle = <String, String>{
   'linux': 'posix',
   'macos': 'posix',
@@ -34,10 +36,10 @@ String sanitizeExecutablePath(String executable,
   return executable;
 }
 
-/// Searches the `PATH` for the executable that [command] is supposed to launch.
+/// Searches the `PATH` for the executable that [executable] is supposed to launch.
 ///
 /// This first builds a list of candidate paths where the executable may reside.
-/// If [command] is already an absolute path, then the `PATH` environment
+/// If [executable] is already an absolute path, then the `PATH` environment
 /// variable will not be consulted, and the specified absolute path will be the
 /// only candidate that is considered.
 ///
@@ -49,11 +51,11 @@ String sanitizeExecutablePath(String executable,
 ///
 /// If [platform] is not specified, it will default to the current platform.
 String? getExecutablePath(
-  String command,
+  String executable,
   String? workingDirectory, {
   Platform platform = const LocalPlatform(),
   FileSystem fs = const LocalFileSystem(),
-  bool errorOnNull = false,
+  bool throwOnFailure = false,
 }) {
   assert(_osToPathStyle[platform.operatingSystem] == fs.path.style.name);
   try {
@@ -71,19 +73,20 @@ String? getExecutablePath(
   String pathSeparator = platform.isWindows ? ';' : ':';
 
   List<String> extensions = <String>[];
-  if (platform.isWindows && context.extension(command).isEmpty) {
+  if (platform.isWindows && context.extension(executable).isEmpty) {
     extensions = platform.environment['PATHEXT']!.split(pathSeparator);
   }
 
   List<String> candidates = <String>[];
-  if (command.contains(context.separator)) {
-    candidates = _getCandidatePaths(
-        command, <String>[workingDirectory], extensions, context);
+  late List<String> searchPath;
+  if (executable.contains(context.separator)) {
+    // Deal with commands that specify a relative or absolute path differently.
+    searchPath = <String>[workingDirectory];
   } else {
-    List<String> searchPath =
-        platform.environment['PATH']!.split(pathSeparator);
-    candidates = _getCandidatePaths(command, searchPath, extensions, context);
+    searchPath = platform.environment['PATH']!.split(pathSeparator);
   }
+  candidates = _getCandidatePaths(executable, searchPath, extensions, context);
+  final List<String> foundCandidates = <String>[];
   for (String path in candidates) {
     final File candidate = fs.file(path);
     FileStat stat = candidate.statSync();
@@ -92,6 +95,9 @@ String? getExecutablePath(
         stat.type == FileSystemEntityType.directory) {
       continue;
     }
+
+    // File exists, but we don't know if it's readable/executable yet.
+    foundCandidates.add(candidate.path);
 
     const int isExecutable = 0x40;
     const int isReadable = 0x100;
@@ -108,10 +114,23 @@ String? getExecutablePath(
       return path;
     }
   }
-  if (errorOnNull) {
-    throw ArgumentError('Failed to resolve $command to an executable.\n'
-        'workingDirectory: $workingDirectory, '
-        'candidates: ${candidates.length}');
+  if (throwOnFailure) {
+    if (foundCandidates.isNotEmpty) {
+      throw ProcessPackageExecutableNotFoundException(
+          executable,
+          message: 'Found candidates, but failed to resolve $executable to an executable.',
+          workingDirectory: workingDirectory,
+          candidates: candidates,
+          searchPath: searchPath,
+      );
+    } else {
+      throw ProcessPackageExecutableNotFoundException(
+          executable,
+          message: 'Failed to resolve $executable to an executable.',
+          workingDirectory: workingDirectory,
+          searchPath: searchPath,
+      );
+    }
   }
   return null;
 }

@@ -9,9 +9,13 @@ import 'dart:io'
         ProcessResult,
         ProcessSignal,
         ProcessStartMode,
+        ProcessException,
         systemEncoding;
 
+import 'package:process/process.dart';
+
 import 'common.dart';
+import 'exceptions.dart';
 import 'process_manager.dart';
 
 /// Local implementation of the `ProcessManager` interface.
@@ -36,19 +40,23 @@ class LocalProcessManager implements ProcessManager {
     bool runInShell = false,
     ProcessStartMode mode = ProcessStartMode.normal,
   }) {
-    return Process.start(
-      sanitizeExecutablePath(_getExecutable(
-        command,
-        workingDirectory,
-        runInShell,
-      )),
-      _getArguments(command),
-      workingDirectory: workingDirectory,
-      environment: environment,
-      includeParentEnvironment: includeParentEnvironment,
-      runInShell: runInShell,
-      mode: mode,
-    );
+    try {
+      return Process.start(
+        sanitizeExecutablePath(_getExecutable(
+          command,
+          workingDirectory,
+          runInShell,
+        )),
+        _getArguments(command),
+        workingDirectory: workingDirectory,
+        environment: environment,
+        includeParentEnvironment: includeParentEnvironment,
+        runInShell: runInShell,
+        mode: mode,
+      );
+    } on ProcessException catch (exception) {
+      throw ProcessPackageException.fromProcessException(exception, workingDirectory: workingDirectory);
+    }
   }
 
   @override
@@ -61,20 +69,24 @@ class LocalProcessManager implements ProcessManager {
     Encoding stdoutEncoding = systemEncoding,
     Encoding stderrEncoding = systemEncoding,
   }) {
-    return Process.run(
-      sanitizeExecutablePath(_getExecutable(
-        command,
-        workingDirectory,
-        runInShell,
-      )),
-      _getArguments(command),
-      workingDirectory: workingDirectory,
-      environment: environment,
-      includeParentEnvironment: includeParentEnvironment,
-      runInShell: runInShell,
-      stdoutEncoding: stdoutEncoding,
-      stderrEncoding: stderrEncoding,
-    );
+    try {
+      return Process.run(
+        sanitizeExecutablePath(_getExecutable(
+          command,
+          workingDirectory,
+          runInShell,
+        )),
+        _getArguments(command),
+        workingDirectory: workingDirectory,
+        environment: environment,
+        includeParentEnvironment: includeParentEnvironment,
+        runInShell: runInShell,
+        stdoutEncoding: stdoutEncoding,
+        stderrEncoding: stderrEncoding,
+      );
+    } on ProcessException catch (exception) {
+      throw ProcessPackageException.fromProcessException(exception, workingDirectory: workingDirectory);
+    }
   }
 
   @override
@@ -87,25 +99,29 @@ class LocalProcessManager implements ProcessManager {
     Encoding stdoutEncoding = systemEncoding,
     Encoding stderrEncoding = systemEncoding,
   }) {
-    return Process.runSync(
-      sanitizeExecutablePath(_getExecutable(
-        command,
-        workingDirectory,
-        runInShell,
-      )),
-      _getArguments(command),
-      workingDirectory: workingDirectory,
-      environment: environment,
-      includeParentEnvironment: includeParentEnvironment,
-      runInShell: runInShell,
-      stdoutEncoding: stdoutEncoding,
-      stderrEncoding: stderrEncoding,
-    );
+    try {
+      return Process.runSync(
+        sanitizeExecutablePath(_getExecutable(
+          command,
+          workingDirectory,
+          runInShell,
+        )),
+        _getArguments(command),
+        workingDirectory: workingDirectory,
+        environment: environment,
+        includeParentEnvironment: includeParentEnvironment,
+        runInShell: runInShell,
+        stdoutEncoding: stdoutEncoding,
+        stderrEncoding: stderrEncoding,
+      );
+    } on ProcessException catch (exception) {
+      throw ProcessPackageException.fromProcessException(exception, workingDirectory: workingDirectory);
+    }
   }
 
   @override
   bool canRun(covariant String executable, {String? workingDirectory}) =>
-      getExecutablePath(executable, workingDirectory, errorOnNull: false) !=
+      getExecutablePath(executable, workingDirectory, throwOnFailure: false) !=
       null;
 
   @override
@@ -120,15 +136,10 @@ String _getExecutable(
   if (runInShell) {
     return commandName;
   }
-  String? exe =
-      getExecutablePath(commandName, workingDirectory, errorOnNull: true);
-  if (exe == null) {
-    throw ArgumentError('Cannot find executable for $commandName.');
-  }
-  return exe;
+  return getExecutablePath(commandName, workingDirectory, throwOnFailure: true)!;
 }
 
-List<String> _getArguments(List<dynamic> command) =>
+List<String> _getArguments(List<Object> command) =>
     // Adding a specific type to map in order to workaround dart issue
     // https://github.com/dart-lang/sdk/issues/32414
     command
