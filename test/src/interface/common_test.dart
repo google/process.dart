@@ -517,6 +517,47 @@ void main() {
         ),
       );
     });
+
+    test('Test that finding no executable paths throws with proper information',
+        () {
+      if (localPlatform.isWindows) {
+        // Windows doesn't check for executable-ness, and we can't run 'chmod'
+        // on Windows anyhow.
+        return;
+      }
+
+      io.ProcessException error;
+      try {
+        getExecutablePath(
+          'non-existent-command',
+          tmpDir.path,
+          platform: platform,
+          fs: fs,
+          throwOnFailure: true,
+        );
+        fail('Expected to throw');
+      } on io.ProcessException catch (err) {
+        error = err;
+      }
+
+      expect(error, isA<ProcessPackageExecutableNotFoundException>());
+      ProcessPackageExecutableNotFoundException notFoundException =
+          error as ProcessPackageExecutableNotFoundException;
+      expect(notFoundException.candidates, isEmpty);
+      expect(
+        error.toString(),
+        equals(
+            'ProcessPackageExecutableNotFoundException: Failed to find "non-existent-command" in the search path.\n'
+            '  Command: non-existent-command\n'
+            '  Working Directory: ${tmpDir.path}\n'
+            '  Search Path:\n'
+            '    ${tmpDir.path}/path1\n'
+            '    ${tmpDir.path}/path2\n'
+            '    ${tmpDir.path}/path3\n'
+            '    ${tmpDir.path}/path4\n'
+            '    ${tmpDir.path}/path5\n'),
+      );
+    });
   });
 }
 

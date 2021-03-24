@@ -80,30 +80,6 @@ void main() {
         await testStream(process.stderr, delegate.stderrController, 'stderr');
       });
     });
-
-    group('exceptions', () {
-      late bool done;
-
-      setUp(() {
-        done = false;
-        // ignore: unawaited_futures
-        process.done.then((int result) {
-          done = true;
-        });
-      });
-
-      test('works in conjunction with subscribers to stdio streams', () async {
-        process.stdout
-            .transform<String>(utf8.decoder)
-            .transform<String>(const LineSplitter())
-            .listen(print);
-        delegate.exitCodeCompleter.complete(0);
-        await delegate.stdoutController.close();
-        await delegate.stderrController.close();
-        await Future<void>.value();
-        expect(done, isTrue);
-      });
-    });
   });
 }
 
