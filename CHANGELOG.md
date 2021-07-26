@@ -1,3 +1,7 @@
+#### 4.2.2
+
+* Mark `stderrEncoding` and `stdoutEncoding` parameters as nullable.
+
 #### 4.2.1
 
 * Added custom exception types `ProcessPackageException` and
