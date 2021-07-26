@@ -1,3 +1,7 @@
+#### 4.2.3
+
+* Rollback to version 4.2.1 (https://github.com/google/process.dart/issues/64)
+
 #### 4.2.2
 
 * Mark `stderrEncoding` and `stdoutEncoding` parameters as nullable.
