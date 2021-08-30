@@ -27,8 +27,9 @@ void main() {
     }
 
     tearDown(() {
-      <Directory>[workingDir, dir1, dir2, dir3]
-          .forEach((Directory d) => d.deleteSync(recursive: true));
+      for (var directory in <Directory>[workingDir, dir1, dir2, dir3]) {
+        directory.deleteSync(recursive: true);
+      }
     });
 
     group('on windows', () {
@@ -227,24 +228,24 @@ void main() {
 
       test('when path has spaces', () {
         expect(
-            sanitizeExecutablePath('Program Files\\bla.exe',
+            sanitizeExecutablePath(r'Program Files\bla.exe',
                 platform: platform),
-            '"Program Files\\bla.exe"');
+            r'"Program Files\bla.exe"');
         expect(
-            sanitizeExecutablePath('ProgramFiles\\bla.exe', platform: platform),
-            'ProgramFiles\\bla.exe');
+            sanitizeExecutablePath(r'ProgramFiles\bla.exe', platform: platform),
+            r'ProgramFiles\bla.exe');
         expect(
-            sanitizeExecutablePath('"Program Files\\bla.exe"',
+            sanitizeExecutablePath(r'"Program Files\bla.exe"',
                 platform: platform),
-            '"Program Files\\bla.exe"');
+            r'"Program Files\bla.exe"');
         expect(
-            sanitizeExecutablePath('\"Program Files\\bla.exe\"',
+            sanitizeExecutablePath(r'"Program Files\bla.exe"',
                 platform: platform),
-            '\"Program Files\\bla.exe\"');
+            r'"Program Files\bla.exe"');
         expect(
-            sanitizeExecutablePath('C:\\\"Program Files\"\\bla.exe',
+            sanitizeExecutablePath(r'C:\"Program Files"\bla.exe',
                 platform: platform),
-            'C:\\\"Program Files\"\\bla.exe');
+            r'C:\"Program Files"\bla.exe');
       });
 
       test('with absolute path when currentDirectory getter throws', () {
