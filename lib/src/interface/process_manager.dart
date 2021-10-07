@@ -141,8 +141,9 @@ abstract class ProcessManager {
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
-    Encoding stdoutEncoding = systemEncoding,
-    Encoding stderrEncoding = systemEncoding,
+    // TODO(#64): Remove the `covariant` keyword.
+    covariant Encoding? stdoutEncoding = systemEncoding,
+    covariant Encoding? stderrEncoding = systemEncoding,
   });
 
   /// Starts a process and runs it to completion. This is a synchronous
@@ -158,8 +159,9 @@ abstract class ProcessManager {
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
-    Encoding stdoutEncoding = systemEncoding,
-    Encoding stderrEncoding = systemEncoding,
+    // TODO(#64): Remove the `covariant` keyword.
+    covariant Encoding? stdoutEncoding = systemEncoding,
+    covariant Encoding? stderrEncoding = systemEncoding,
   });
 
   /// Returns `true` if the [executable] exists and if it can be executed.
