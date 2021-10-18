@@ -12,8 +12,6 @@ import 'dart:io'
         ProcessException,
         systemEncoding;
 
-import 'package:process/process.dart';
-
 import 'common.dart';
 import 'exceptions.dart';
 import 'process_manager.dart';
@@ -67,8 +65,8 @@ class LocalProcessManager implements ProcessManager {
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
-    Encoding stdoutEncoding = systemEncoding,
-    Encoding stderrEncoding = systemEncoding,
+    Encoding? stdoutEncoding = systemEncoding,
+    Encoding? stderrEncoding = systemEncoding,
   }) {
     try {
       return Process.run(
@@ -98,8 +96,8 @@ class LocalProcessManager implements ProcessManager {
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
     bool runInShell = false,
-    Encoding stdoutEncoding = systemEncoding,
-    Encoding stderrEncoding = systemEncoding,
+    Encoding? stdoutEncoding = systemEncoding,
+    Encoding? stderrEncoding = systemEncoding,
   }) {
     try {
       return Process.runSync(

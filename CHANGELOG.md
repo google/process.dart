@@ -1,3 +1,8 @@
+#### 4.2.4
+
+* Mark `stderrEncoding` and `stdoutEncoding` parameters as nullable again,
+  now that the upstream SDK issue has been fixed.
+
 #### 4.2.3
 
 * Rollback to version 4.2.1 (https://github.com/google/process.dart/issues/64)
