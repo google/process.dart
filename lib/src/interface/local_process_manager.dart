@@ -12,8 +12,6 @@ import 'dart:io'
         ProcessException,
         systemEncoding;
 
-import 'package:process/process.dart';
-
 import 'common.dart';
 import 'exceptions.dart';
 import 'process_manager.dart';
