@@ -1,7 +1,5 @@
-# Process
-
-[![Build Status -](https://travis-ci.org/google/process.dart.svg?branch=master)](https://travis-ci.org/google/process.dart)
-[![Coverage Status -](https://coveralls.io/repos/github/google/process.dart/badge.svg?branch=master)](https://coveralls.io/github/google/process.dart?branch=master)
+[![Process Package](https://github.com/google/process.dart/actions/workflows/process.yml/badge.svg)](https://github.com/google/process.dart/actions/workflows/process.yml)
+[![pub package](https://img.shields.io/pub/v/process.svg)](https://pub.dev/packages/process)
 
 A generic process invocation abstraction for Dart.
 

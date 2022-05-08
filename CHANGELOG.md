@@ -1,3 +1,7 @@
+#### 4.2.5-dev
+
+* Populate the pubspec `repository` field.
+
 #### 4.2.4
 
 * Mark `stderrEncoding` and `stdoutEncoding` parameters as nullable again,
