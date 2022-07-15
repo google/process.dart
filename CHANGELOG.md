@@ -1,3 +1,8 @@
+#### 5.0.0
+
+* Remove the `covariant` keyword from `stderrEncoding` and `stdoutEncoding`
+  parameters.
+
 #### 4.2.4
 
 * Mark `stderrEncoding` and `stdoutEncoding` parameters as nullable again,
