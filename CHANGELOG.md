@@ -1,3 +1,7 @@
+#### 5.0.1
+
+* Example App implementation & Usage Example in README.md
+
 #### 5.0.0
 
 * Remove the `covariant` keyword from `stderrEncoding` and `stdoutEncoding`
