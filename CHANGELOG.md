@@ -3,6 +3,7 @@
 * Remove the `covariant` keyword from `stderrEncoding` and `stdoutEncoding`
   parameters.
 * Update dependencies to work on Dart 3.
+* Bumped min SDK dependency to nearest non-prerelease version (2.14.0)
 
 #### 4.2.4
 
