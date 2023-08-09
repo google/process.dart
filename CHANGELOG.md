@@ -1,11 +1,8 @@
-#### 5.0.1
-
-* Update dependencies to work on Dart 3.
-
 #### 5.0.0
 
 * Remove the `covariant` keyword from `stderrEncoding` and `stdoutEncoding`
   parameters.
+* Update dependencies to work on Dart 3.
 
 #### 4.2.4
 
