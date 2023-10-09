@@ -1,5 +1,12 @@
 # Process
 
+## Moved
+
+The source for the `platform` package has moved to [the `flutter/packages`
+repository](https://github.com/flutter/packages/tree/main/packages/process).
+
+-----
+
 [![Build Status -](https://travis-ci.org/google/process.dart.svg?branch=master)](https://travis-ci.org/google/process.dart)
 [![Coverage Status -](https://coveralls.io/repos/github/google/process.dart/badge.svg?branch=master)](https://coveralls.io/github/google/process.dart?branch=master)
 
